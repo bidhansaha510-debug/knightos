@@ -81,14 +81,22 @@ export default function Lobby() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-base flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-text-muted mb-4">Please sign in to play</p>
+      <div className="min-h-screen bg-transparent flex items-center justify-center p-6">
+        <div className="glass-card p-10 text-center max-w-sm w-full shadow-2xl border border-white/5 space-y-6 animate-slide-up">
+          <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-3xl mx-auto shadow-md">
+            ⚔️
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold font-display text-text-primary">Sign In Required</h2>
+            <p className="text-text-muted text-sm font-light">
+              You must be logged in to access online matchmaking and play against other players.
+            </p>
+          </div>
           <button
             onClick={() => navigate('/login')}
-            className="bg-accent-blue text-white px-6 py-2 font-semibold hover:bg-blue-600 transition-colors"
+            className="btn-primary w-full py-3 text-sm uppercase tracking-wider"
           >
-            Sign In
+            Sign In Now
           </button>
         </div>
       </div>
@@ -96,43 +104,52 @@ export default function Lobby() {
   }
 
   return (
-    <div className="min-h-screen bg-base p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold font-display text-text-primary">Play</h1>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-accent-green' : 'bg-accent-red'}`} />
-            <span className="text-text-muted text-xs">
-              {isConnected ? 'Connected to lobby' : 'Connecting...'}
+    <div className="min-h-screen bg-transparent p-6 relative overflow-hidden">
+      {/* Glow blobs */}
+      <div className="absolute top-[-10%] left-[20%] w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+          <div>
+            <h1 className="text-3xl font-black font-display text-text-primary tracking-wide">
+              Create a Game
+            </h1>
+            <p className="text-text-muted text-sm font-light mt-1">Select a time control to join the matchmaking pool.</p>
+          </div>
+          <div className="flex items-center gap-2.5 bg-white/[0.02] border border-white/5 rounded-full px-4 py-2">
+            <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-accent-green shadow-[0_0_8px_#10b981]' : 'bg-accent-red animate-pulse'}`} />
+            <span className="text-text-primary text-xs font-semibold tracking-wide">
+              {isConnected ? 'Lobby Connected' : 'Connecting...'}
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Time control selection */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-6">
             {TIME_CONTROL_GROUPS.map((group) => (
-              <div key={group.name}>
-                <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2 flex items-center gap-1">
-                  <span>{group.icon}</span>
+              <div key={group.name} className="glass-card p-5">
+                <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <span className="text-lg filter drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)]">{group.icon}</span>
                   {group.name}
                 </h2>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   {group.controls.map((tc) => (
                     <button
                       key={tc}
                       onClick={() => handleSeek(tc)}
                       className={`
-                        p-4 border transition-all duration-150
+                        p-5 rounded-2xl border transition-all duration-300 font-mono text-lg font-bold flex flex-col items-center justify-center relative overflow-hidden
                         ${activeSeeking === tc
-                          ? 'bg-accent-blue/20 border-accent-blue text-accent-blue'
-                          : 'bg-surface border-border text-text-primary hover:border-accent-blue hover:bg-elevated'
+                          ? 'bg-blue-500/25 border-accent-blue text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.35)]'
+                          : 'bg-white/[0.02] border-white/5 text-text-primary hover:border-accent-blue/40 hover:bg-white/[0.08] hover:scale-[1.03]'
                         }
                       `}
                     >
-                      <span className="font-mono text-lg font-bold">{tc}</span>
+                      <span>{tc}</span>
                       {activeSeeking === tc && (
-                        <p className="text-xs mt-1 animate-pulse">Seeking...</p>
+                        <span className="absolute bottom-2 text-[10px] text-blue-400 uppercase tracking-widest font-sans font-bold animate-pulse">Seeking...</span>
                       )}
                     </button>
                   ))}
@@ -141,52 +158,55 @@ export default function Lobby() {
             ))}
 
             {/* Custom time control */}
-            <div className="bg-surface border border-border p-4">
-              <h3 className="text-sm font-semibold text-text-muted mb-2">Custom</h3>
-              <div className="flex gap-2">
+            <div className="glass-card p-5">
+              <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">Custom Time Control</h3>
+              <div className="flex gap-3">
                 <input
                   type="text"
                   placeholder="e.g. 10+5"
                   value={selectedControl || ''}
                   onChange={(e) => setSelectedControl(e.target.value)}
-                  className="flex-1 bg-base border border-border text-text-primary px-3 py-2 font-mono text-sm"
+                  className="flex-1 bg-white/[0.03] border border-white/5 text-text-primary px-4 py-2.5 rounded-xl font-mono text-base focus:border-accent-blue"
                 />
                 <button
                   onClick={() => selectedControl && handleSeek(selectedControl)}
-                  className="bg-accent-blue text-white px-4 py-2 text-sm font-semibold hover:bg-blue-600 transition-colors"
+                  className="btn-primary px-6 py-2.5 text-sm uppercase tracking-wider"
                 >
-                  Play
+                  Play Custom
                 </button>
               </div>
             </div>
           </div>
 
           {/* Open seeks */}
-          <div>
-            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">
-              Open Games
+          <div className="space-y-4">
+            <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">
+              Available Seeks
             </h2>
-            <div className="bg-surface border border-border">
+            <div className="glass-card overflow-hidden">
               {seeks.length === 0 ? (
-                <div className="p-4 text-center text-text-muted text-sm">
-                  No open seeks
+                <div className="p-8 text-center text-text-muted text-sm font-light">
+                  <div className="text-2xl mb-2">⏳</div>
+                  No active seekers.
+                  <br />
+                  Start a seek to invite others!
                 </div>
               ) : (
-                <div className="divide-y divide-border">
+                <div className="divide-y divide-white/5">
                   {seeks.filter((s) => s.userId !== user.id).map((seek) => (
                     <button
                       key={seek.id}
                       onClick={() => handleSeek(seek.timeControl)}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-elevated transition-colors"
+                      className="w-full px-5 py-4.5 flex items-center justify-between hover:bg-white/[0.04] transition-all duration-200 text-left group"
                     >
-                      <div>
-                        <span className="text-text-primary font-semibold text-sm">{seek.username}</span>
-                        <span className="text-text-muted text-xs ml-2">({seek.rating})</span>
+                      <div className="space-y-1">
+                        <span className="text-text-primary font-bold text-sm group-hover:text-blue-400 transition-colors">{seek.username}</span>
+                        <div className="text-[11px] text-text-muted font-medium uppercase tracking-wider">Rating: {seek.rating}</div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-text-primary font-mono text-sm">{seek.timeControl}</span>
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-text-primary font-mono text-sm bg-white/[0.04] border border-white/5 rounded-lg px-2.5 py-1 font-bold">{seek.timeControl}</span>
                         {seek.rated && (
-                          <span className="text-accent-amber text-xs ml-1">Rated</span>
+                          <span className="text-[10px] text-accent-amber bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Rated</span>
                         )}
                       </div>
                     </button>

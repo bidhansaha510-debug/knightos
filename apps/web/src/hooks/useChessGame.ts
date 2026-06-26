@@ -63,6 +63,15 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
         }
         case 'game_over': {
           const overMsg = msg as any;
+          const currentGameState = useGameStore.getState().gameState;
+          if (currentGameState) {
+            setGameState({
+              ...currentGameState,
+              status: 'ended',
+              result: overMsg.result,
+              termination: overMsg.termination,
+            });
+          }
           onGameOver?.(overMsg.result, overMsg.termination);
           break;
         }

@@ -1,39 +1,40 @@
-// Stockfish WASM Web Worker wrapper
-// This worker proxies messages to the Stockfish engine
+// Stockfish WASM Web Worker wrapper using jsDelivr CDN
+declare const importScripts: (...urls: string[]) => void;
 
-let engine: Worker | null = null;
+let engine: any = null;
 
-// Try to load stockfish from the npm package
 try {
-  // The stockfish npm package exposes the engine as a script
-  // In production, copy stockfish files to public/ and reference directly
-  // For dev, we create a simple passthrough
+  // Load Stockfish 10.0.2 single-threaded engine from cdnjs
+  const cdnUrl = 'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js';
   
-  // Check if we can create the actual Stockfish worker
-  const stockfishUrl = '/stockfish/stockfish-nnue-16-single.js';
+  // Import the CDN script inside the Web Worker
+  importScripts(cdnUrl);
   
-  engine = new Worker(stockfishUrl);
-  
-  engine.onmessage = (e) => {
-    self.postMessage(e.data);
-  };
+  // Initialize the engine
+  if (typeof (self as any).STOCKFISH === 'function') {
+    engine = (self as any).STOCKFISH();
+    
+    engine.onmessage = (e: any) => {
+      self.postMessage(e);
+    };
+  } else {
+    console.error('STOCKFISH function not found after importing CDN script');
+  }
 } catch (err) {
-  // Stockfish not available — use a stub that returns static evals
-  console.warn('Stockfish WASM not available, using stub');
+  console.error('Failed to load Stockfish from CDN:', err);
 }
 
 self.onmessage = (e) => {
   if (engine) {
     engine.postMessage(e.data);
   } else {
-    // Stub responses for development without Stockfish
+    // Stub responses if loading fails
     const msg = String(e.data);
     if (msg === 'uci') {
       self.postMessage('uciok');
     } else if (msg === 'isready') {
       self.postMessage('readyok');
     } else if (msg.startsWith('go')) {
-      // Return a dummy eval after a short delay
       setTimeout(() => {
         self.postMessage('info depth 1 score cp 15 multipv 1 pv e2e4');
         self.postMessage('bestmove e2e4');

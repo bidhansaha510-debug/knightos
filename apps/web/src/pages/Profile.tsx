@@ -80,21 +80,31 @@ export default function Profile() {
     : '0';
 
   return (
-    <div className="min-h-screen bg-base p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-transparent p-6 relative overflow-hidden">
+      {/* Background glow blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto space-y-6 relative z-10">
         {/* Header */}
-        <div className="bg-surface border border-border p-6 flex items-center justify-between">
+        <div className="glass-card p-6 flex items-center justify-between shadow-lg">
           <div>
-            <h1 className="text-2xl font-bold font-display text-text-primary">{profile.username}</h1>
-            <p className="text-text-muted text-sm mt-1">
-              Joined {new Date(profile.createdAt).toLocaleDateString()}
-            </p>
-            <div className="flex gap-4 mt-2 text-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xl text-white shadow-md shadow-blue-500/10">
+                {profile.username[0].toUpperCase()}
+              </div>
+              <div>
+                <h1 className="text-2xl font-black font-display text-text-primary">{profile.username}</h1>
+                <p className="text-text-muted text-xs font-light mt-0.5">
+                  Member since {new Date(profile.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-4 text-xs font-medium">
               <span className="text-text-muted">
-                <strong className="text-text-primary">{profile.followerCount}</strong> followers
+                <strong className="text-text-primary font-bold">{profile.followerCount}</strong> followers
               </span>
               <span className="text-text-muted">
-                <strong className="text-text-primary">{profile.followingCount}</strong> following
+                <strong className="text-text-primary font-bold">{profile.followingCount}</strong> following
               </span>
             </div>
           </div>
@@ -102,10 +112,10 @@ export default function Profile() {
             <button
               onClick={toggleFollow}
               className={`
-                px-4 py-2 text-sm font-semibold transition-colors
+                px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200
                 ${isFollowing
-                  ? 'bg-surface border border-accent-blue text-accent-blue hover:bg-accent-blue/10'
-                  : 'bg-accent-blue text-white hover:bg-blue-600'
+                  ? 'bg-white/[0.04] border border-white/10 text-text-primary hover:bg-white/[0.08]'
+                  : 'btn-primary'
                 }
               `}
             >
@@ -115,47 +125,47 @@ export default function Profile() {
         </div>
 
         {/* Stats */}
-        <div className="bg-surface border border-border p-4">
+        <div className="glass-card p-5 space-y-4 shadow-lg">
           <div className="grid grid-cols-4 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold font-display text-text-primary">{profile.stats.totalGames}</p>
-              <p className="text-text-muted text-xs uppercase">Games</p>
+            <div className="space-y-1">
+              <p className="text-2xl font-black font-display text-text-primary">{profile.stats.totalGames}</p>
+              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Total Games</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold font-display text-accent-green">{profile.stats.wins}</p>
-              <p className="text-text-muted text-xs uppercase">Wins</p>
+            <div className="space-y-1">
+              <p className="text-2xl font-black font-display text-accent-green">{profile.stats.wins}</p>
+              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Wins</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold font-display text-accent-red">{profile.stats.losses}</p>
-              <p className="text-text-muted text-xs uppercase">Losses</p>
+            <div className="space-y-1">
+              <p className="text-2xl font-black font-display text-accent-red">{profile.stats.losses}</p>
+              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Losses</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold font-display text-accent-amber">{profile.stats.draws}</p>
-              <p className="text-text-muted text-xs uppercase">Draws</p>
+            <div className="space-y-1">
+              <p className="text-2xl font-black font-display text-accent-amber">{profile.stats.draws}</p>
+              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Draws</p>
             </div>
           </div>
-          <div className="mt-3 bg-base h-2 overflow-hidden">
-            <div className="flex h-full">
-              <div className="bg-accent-green" style={{ width: `${winRate}%` }} />
-              <div className="bg-accent-amber" style={{ width: `${profile.stats.totalGames > 0 ? ((profile.stats.draws / profile.stats.totalGames) * 100).toFixed(1) : 0}%` }} />
-              <div className="bg-accent-red flex-1" />
+          <div className="relative pt-1">
+            <div className="overflow-hidden h-2.5 text-xs flex rounded-full bg-white/[0.05] border border-white/5">
+              <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-green" style={{ width: `${winRate}%` }} />
+              <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-amber" style={{ width: `${profile.stats.totalGames > 0 ? ((profile.stats.draws / profile.stats.totalGames) * 100).toFixed(1) : 0}%` }} />
+              <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-red flex-1" />
             </div>
           </div>
         </div>
 
-        {/* Ratings */}
-        <div className="grid grid-cols-5 gap-2">
+        {/* Ratings Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {RATING_CATEGORIES.map((cat) => {
             const r = profile.ratings[cat.key];
             return (
-              <div key={cat.key} className="bg-surface border border-border p-4 text-center">
-                <span className="text-lg">{cat.icon}</span>
-                <p className="text-text-muted text-xs uppercase mt-1">{cat.label}</p>
-                <p className="text-xl font-bold font-mono text-text-primary mt-1">
+              <div key={cat.key} className="glass-card p-4 text-center hover:border-white/10 transition-colors shadow-md">
+                <span className="text-2xl filter drop-shadow-[0_2px_4px_rgba(255,255,255,0.05)]">{cat.icon}</span>
+                <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider mt-2">{cat.label}</p>
+                <p className="text-2xl font-black font-mono text-text-primary mt-1.5 leading-none">
                   {r ? Math.round(r.rating) : '—'}
                 </p>
                 {r && r.rd > 100 && (
-                  <p className="text-text-muted text-xs">±{Math.round(r.rd)}</p>
+                  <p className="text-text-muted text-[9px] font-medium tracking-wide mt-1">±{Math.round(r.rd)} deviation</p>
                 )}
               </div>
             );
@@ -163,13 +173,13 @@ export default function Profile() {
         </div>
 
         {/* Recent Games */}
-        <div>
-          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">Recent Games</h2>
-          <div className="bg-surface border border-border">
+        <div className="space-y-3">
+          <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">Recent Matches</h2>
+          <div className="glass-card overflow-hidden">
             {games.length === 0 ? (
-              <p className="p-4 text-text-muted text-sm text-center">No games played yet</p>
+              <p className="p-8 text-text-muted text-sm font-light text-center">No games played yet</p>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-white/5">
                 {games.map((game: any) => {
                   const isWhite = game.white.id === profile.id;
                   const opponent = isWhite ? game.black : game.white;
@@ -184,18 +194,23 @@ export default function Profile() {
                     <Link
                       key={game.id}
                       to={`/games/${game.id}`}
-                      className="flex items-center justify-between px-4 py-3 hover:bg-elevated transition-colors"
+                      className={`
+                        flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition-all duration-200 group border-l-2
+                        ${won ? 'border-accent-green/40' : lost ? 'border-accent-red/40' : 'border-accent-amber/40'}
+                      `}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 ${isWhite ? 'bg-white' : 'bg-[#333]'}`} />
-                        <span className="text-text-primary text-sm">
-                          vs <strong>{opponent.username}</strong>
+                        <div className={`w-2.5 h-2.5 rounded-full ${isWhite ? 'bg-slate-200 border border-white/10' : 'bg-slate-800 border border-white/5'}`} />
+                        <span className="text-text-primary text-sm font-medium">
+                          vs <strong className="font-bold group-hover:text-blue-400 transition-colors">{opponent.username}</strong>
                         </span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-text-muted font-mono text-xs">{game.timeControl}</span>
-                        <span className={`font-semibold text-sm ${won ? 'text-accent-green' : lost ? 'text-accent-red' : 'text-accent-amber'}`}>
-                          {won ? 'Win' : lost ? 'Loss' : 'Draw'}
+                      <div className="flex items-center gap-4">
+                        <span className="text-text-muted font-mono text-xs bg-white/[0.03] px-2.5 py-1 rounded-lg border border-white/5">{game.timeControl}</span>
+                        <span className={`font-bold text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full border
+                          ${won ? 'bg-emerald-500/10 border-emerald-500/20 text-accent-green' : lost ? 'bg-red-500/10 border-red-500/20 text-accent-red' : 'bg-amber-500/10 border-amber-500/20 text-accent-amber'}
+                        `}>
+                          {won ? 'Victory' : lost ? 'Defeat' : 'Draw'}
                         </span>
                       </div>
                     </Link>

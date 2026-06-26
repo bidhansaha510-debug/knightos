@@ -69,20 +69,31 @@ export default function Game() {
   }
 
   return (
-    <div className="min-h-screen bg-base flex items-center justify-center p-4">
-      <div className="flex gap-4 items-start max-w-5xl">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background glow blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-[450px] h-[450px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[450px] h-[450px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="flex gap-6 items-start max-w-5xl relative z-10">
         {/* Board area */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {/* Opponent info + clock */}
-          <div className="flex items-center justify-between bg-surface border border-border px-3 py-2">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 ${isFlipped ? 'bg-white' : 'bg-[#333]'}`} />
-              <span className="text-text-primary font-semibold text-sm">
-                {isFlipped ? gameState?.whiteUsername : gameState?.blackUsername}
-              </span>
-              <span className="text-text-muted text-xs font-mono">
-                ({isFlipped ? gameState?.whiteRating : gameState?.blackRating})
-              </span>
+          <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3 shadow-md backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isFlipped ? 'bg-slate-200 text-slate-800' : 'bg-slate-800 text-slate-200 border border-white/5'}`}>
+                  {isFlipped ? 'W' : 'B'}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#131522] bg-emerald-500" />
+              </div>
+              <div>
+                <span className="text-text-primary font-bold text-sm block">
+                  {isFlipped ? gameState?.whiteUsername : gameState?.blackUsername}
+                </span>
+                <span className="text-text-muted text-[11px] font-mono font-semibold tracking-wide uppercase">
+                  Rating: {isFlipped ? gameState?.whiteRating : gameState?.blackRating}
+                </span>
+              </div>
             </div>
             <GameClock
               timeMs={isFlipped ? (gameState?.whiteClock ?? 300000) : (gameState?.blackClock ?? 300000)}
@@ -91,30 +102,39 @@ export default function Game() {
             />
           </div>
 
-          {/* Chess Board */}
-          <ChessBoard
-            fen={gameState?.fen}
-            flipped={isBlack || isFlipped}
-            interactive={isPlayer && gameState?.status === 'active'}
-            onMove={(from, to, promotion) => {
-              makeMove(from, to, promotion);
-              return true;
-            }}
-            lastMove={lastMove}
-            checkSquare={checkSquare}
-            size={560}
-          />
+          {/* Chess Board Wrapper */}
+          <div className="relative p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md">
+            <ChessBoard
+              fen={gameState?.fen}
+              flipped={isBlack || isFlipped}
+              interactive={isPlayer && gameState?.status === 'active'}
+              onMove={(from, to, promotion) => {
+                makeMove(from, to, promotion);
+                return true;
+              }}
+              lastMove={lastMove}
+              checkSquare={checkSquare}
+              size={560}
+            />
+          </div>
 
           {/* Player info + clock */}
-          <div className="flex items-center justify-between bg-surface border border-border px-3 py-2">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 ${isFlipped ? 'bg-[#333]' : 'bg-white'}`} />
-              <span className="text-text-primary font-semibold text-sm">
-                {isFlipped ? gameState?.blackUsername : gameState?.whiteUsername}
-              </span>
-              <span className="text-text-muted text-xs font-mono">
-                ({isFlipped ? gameState?.blackRating : gameState?.whiteRating})
-              </span>
+          <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3 shadow-md backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isFlipped ? 'bg-slate-800 text-slate-200 border border-white/5' : 'bg-slate-200 text-slate-800'}`}>
+                  {isFlipped ? 'B' : 'W'}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#131522] bg-emerald-500" />
+              </div>
+              <div>
+                <span className="text-text-primary font-bold text-sm block">
+                  {isFlipped ? gameState?.blackUsername : gameState?.whiteUsername}
+                </span>
+                <span className="text-text-muted text-[11px] font-mono font-semibold tracking-wide uppercase">
+                  Rating: {isFlipped ? gameState?.blackRating : gameState?.whiteRating}
+                </span>
+              </div>
             </div>
             <GameClock
               timeMs={isFlipped ? (gameState?.blackClock ?? 300000) : (gameState?.whiteClock ?? 300000)}
@@ -125,45 +145,51 @@ export default function Game() {
         </div>
 
         {/* Side panel */}
-        <div className="w-64 flex flex-col gap-2">
-          {/* Connection status */}
-          <div className="flex items-center gap-2 px-3 py-1">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-accent-green' : 'bg-accent-red'}`} />
-            <span className="text-text-muted text-xs">
-              {isConnected ? 'Connected' : 'Reconnecting...'}
-            </span>
-          </div>
-
-          {/* Game info */}
-          <div className="bg-surface border border-border px-3 py-2">
-            <div className="flex items-center justify-between">
-              <span className="text-text-muted text-xs uppercase">Time Control</span>
-              <span className="text-text-primary font-mono text-sm">{gameState?.timeControl}</span>
+        <div className="w-72 flex flex-col gap-3 self-stretch">
+          {/* Connection and Game info */}
+          <div className="glass-card p-4 space-y-3">
+            <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
+              <span className="text-text-muted text-[11px] font-bold uppercase tracking-wider">Time Control</span>
+              <span className="text-text-primary font-mono text-sm font-bold bg-white/[0.04] border border-white/5 px-2.5 py-0.5 rounded-lg">{gameState?.timeControl}</span>
             </div>
-            {gameState?.rated && (
-              <span className="text-accent-amber text-xs">Rated</span>
-            )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-accent-green shadow-[0_0_8px_#10b981]' : 'bg-accent-red animate-pulse'}`} />
+                <span className="text-text-muted text-xs font-semibold">
+                  {isConnected ? 'Live Match' : 'Reconnecting...'}
+                </span>
+              </div>
+              {gameState?.rated && (
+                <span className="text-[10px] text-accent-amber bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Rated</span>
+              )}
+            </div>
           </div>
 
           {/* Move list */}
-          <div className="bg-surface border border-border flex-1 min-h-[200px]">
-            <MoveList moves={gameState?.moves || []} />
+          <div className="glass-card flex-1 min-h-[220px] overflow-hidden flex flex-col">
+            <div className="px-4 py-3 border-b border-white/5 bg-white/[0.01]">
+              <span className="text-text-muted text-xs font-bold uppercase tracking-widest">Move Log</span>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <MoveList moves={gameState?.moves || []} />
+            </div>
           </div>
 
           {/* Game over overlay */}
           {gameOverMessage && (
-            <div className="bg-surface border border-accent-blue px-4 py-3 animate-slide-up">
-              <p className="text-text-primary font-semibold text-center">{gameOverMessage}</p>
-              <div className="flex gap-2 mt-3">
+            <div className="glass-card border-accent-blue/30 p-5 animate-slide-up shadow-lg bg-blue-500/[0.02]">
+              <h3 className="text-text-primary font-black text-center text-lg leading-tight mb-1">Game Over</h3>
+              <p className="text-blue-400 font-bold text-center text-sm">{gameOverMessage}</p>
+              <div className="flex gap-2.5 mt-4">
                 <button
                   onClick={() => navigate('/play')}
-                  className="flex-1 bg-accent-blue text-white py-1.5 text-sm font-semibold hover:bg-blue-600 transition-colors"
+                  className="btn-primary flex-1 py-2.5 text-xs uppercase tracking-wider"
                 >
                   New Game
                 </button>
                 <button
                   onClick={() => navigate(`/games/${id}`)}
-                  className="flex-1 bg-surface border border-border text-text-primary py-1.5 text-sm hover:bg-elevated transition-colors"
+                  className="btn-secondary flex-1 py-2.5 text-xs uppercase tracking-wider"
                 >
                   Review
                 </button>
@@ -173,22 +199,20 @@ export default function Game() {
 
           {/* Game controls */}
           {isPlayer && gameState?.status === 'active' && !gameOverMessage && (
-            <div className="flex gap-2">
+            <div className="flex gap-2.5">
               <button
                 onClick={toggleFlipped}
-                className="flex-1 bg-surface border border-border text-text-muted py-2 text-sm
-                         hover:bg-elevated hover:text-text-primary transition-colors"
+                className="btn-secondary flex-1 py-3 text-sm font-semibold flex items-center justify-center gap-1.5"
                 title="Flip board"
               >
-                ⟳
+                <span>⟳</span> Flip
               </button>
               <button
                 onClick={offerDraw}
-                className="flex-1 bg-surface border border-border text-text-muted py-2 text-sm
-                         hover:bg-elevated hover:text-accent-amber transition-colors"
+                className="btn-secondary flex-1 py-3 text-sm font-semibold flex items-center justify-center gap-1.5 hover:text-accent-amber hover:border-accent-amber/30 hover:bg-amber-500/10"
                 title="Offer draw"
               >
-                ½
+                <span>½</span> Draw
               </button>
               <button
                 onClick={() => {
@@ -196,11 +220,10 @@ export default function Game() {
                     resign();
                   }
                 }}
-                className="flex-1 bg-surface border border-border text-text-muted py-2 text-sm
-                         hover:bg-elevated hover:text-accent-red transition-colors"
+                className="btn-secondary flex-1 py-3 text-sm font-semibold flex items-center justify-center gap-1.5 hover:text-accent-red hover:border-accent-red/30 hover:bg-red-500/10"
                 title="Resign"
               >
-                ⚑
+                <span>⚑</span> Resign
               </button>
             </div>
           )}

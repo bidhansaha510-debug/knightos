@@ -193,7 +193,9 @@ export default function ChessBoard({
       const moves = chess.moves({ square: square as ChessSquare, verbose: true });
       setInternalLegalMoves(moves.map((m) => m.to));
 
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+      try {
+        boardRef.current?.setPointerCapture(e.pointerId);
+      } catch {}
     },
     [interactive, pieces, chess]
   );
@@ -237,6 +239,9 @@ export default function ChessBoard({
         }
       }
 
+      try {
+        boardRef.current?.releasePointerCapture(e.pointerId);
+      } catch {}
       setDragging(null);
     },
     [dragging, squareSize, flipped, legalMoves, onMove, coordSize]

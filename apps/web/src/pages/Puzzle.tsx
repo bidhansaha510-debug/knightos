@@ -187,35 +187,46 @@ export default function Puzzle() {
   const sideToMove = puzzle ? (puzzle.fen.split(' ')[1] === 'w' ? false : true) : false;
 
   return (
-    <div className="min-h-screen bg-base p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold font-display text-text-primary">
-            Puzzle Trainer
-          </h1>
-          <div className="flex items-center gap-4">
-            <div className="text-center">
-              <p className="text-text-muted text-xs">Streak</p>
-              <p className="text-accent-green font-bold font-mono">{streak}</p>
+    <div className="min-h-screen bg-transparent p-6 relative overflow-hidden">
+      {/* Background glow blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+          <div>
+            <h1 className="text-3xl font-black font-display text-text-primary tracking-wide">
+              Puzzle Trainer
+            </h1>
+            <p className="text-text-muted text-sm font-light mt-1">Train your pattern recognition with tactical exercises.</p>
+          </div>
+          <div className="flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-2xl px-5 py-2.5 shadow-md">
+            <div className="text-center border-r border-white/5 pr-4">
+              <p className="text-text-muted text-[10px] uppercase font-bold tracking-wider">Streak</p>
+              <p className="text-accent-green font-black font-mono text-lg mt-0.5 filter drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">
+                🔥 {streak}
+              </p>
             </div>
             <div className="text-center">
-              <p className="text-text-muted text-xs">Rating</p>
-              <p className="text-text-primary font-bold font-mono">{puzzleRating}</p>
+              <p className="text-text-muted text-[10px] uppercase font-bold tracking-wider">Trainer Rating</p>
+              <p className="text-text-primary font-black font-mono text-lg mt-0.5">
+                {puzzleRating}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-6 items-start">
+        <div className="flex gap-8 items-start">
           {/* Board */}
           <div className="flex-shrink-0 relative">
             <div
-              className="transition-all duration-200"
+              className="p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md transition-all duration-300"
               style={{
                 boxShadow: boardFlash === 'red'
-                  ? '0 0 0 4px rgba(239, 68, 68, 0.6)'
+                  ? '0 0 30px rgba(239, 68, 68, 0.4)'
                   : boardFlash === 'green'
-                  ? '0 0 0 4px rgba(34, 197, 94, 0.6)'
-                  : 'none',
+                  ? '0 0 30px rgba(16, 185, 129, 0.4)'
+                  : '0 20px 50px rgba(0, 0, 0, 0.5)',
               }}
             >
               <ChessBoard
@@ -230,42 +241,49 @@ export default function Puzzle() {
           </div>
 
           {/* Puzzle info panel */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 self-stretch flex flex-col">
             {puzzle && (
-              <div className="bg-surface border border-border p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-text-muted text-xs uppercase tracking-wider">Puzzle Rating</span>
-                  <span className="text-text-primary font-mono font-bold">{Math.round(puzzle.rating)}</span>
+              <div className="glass-card p-5 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                  <span className="text-text-muted text-[11px] font-bold uppercase tracking-wider">Puzzle Rating</span>
+                  <span className="text-text-primary font-mono font-bold bg-white/[0.04] border border-white/5 px-2.5 py-0.5 rounded-lg">{Math.round(puzzle.rating)}</span>
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {puzzle.themes.map((theme) => (
-                    <span
-                      key={theme}
-                      className="text-xs bg-elevated px-2 py-0.5 text-text-muted border border-border"
-                    >
-                      {theme}
-                    </span>
-                  ))}
+                <div className="space-y-2">
+                  <span className="text-text-muted text-[10px] uppercase font-bold tracking-widest block">Themes</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {puzzle.themes.map((theme) => (
+                      <span
+                        key={theme}
+                        className="text-[10px] font-semibold bg-white/[0.03] border border-white/5 hover:border-white/10 px-2.5 py-1 text-text-muted rounded-md transition-colors"
+                      >
+                        {theme}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Status messages */}
             {status === 'playing' && (
-              <div className="bg-surface border border-accent-blue px-4 py-3">
-                <p className="text-accent-blue font-semibold text-sm">Your turn — find the best move</p>
+              <div className="glass-card border-blue-500/30 p-5 shadow-lg bg-blue-500/[0.02] flex-1 flex flex-col justify-center">
+                <h3 className="text-blue-400 font-bold text-sm tracking-wide uppercase">Your Turn</h3>
+                <p className="text-text-primary font-medium text-base mt-1">Find the best move for {sideToMove ? 'Black' : 'White'}.</p>
                 {attempts > 0 && (
-                  <p className="text-accent-amber text-xs mt-1">Try again ({2 - attempts} attempt{2 - attempts !== 1 ? 's' : ''} left)</p>
+                  <div className="mt-3 text-xs bg-amber-500/10 border border-amber-500/20 text-accent-amber rounded-lg px-3 py-2 font-medium">
+                    ⚠️ Try again ({2 - attempts} attempt{2 - attempts !== 1 ? 's' : ''} left)
+                  </div>
                 )}
               </div>
             )}
 
             {status === 'solved' && (
-              <div className="bg-accent-green/10 border border-accent-green/30 px-4 py-3 animate-slide-up">
-                <p className="text-accent-green font-semibold">✓ Correct!</p>
+              <div className="glass-card border-emerald-500/30 p-5 shadow-lg bg-emerald-500/[0.02] flex-1 flex flex-col justify-center animate-slide-up">
+                <h3 className="text-accent-green font-bold text-sm tracking-wide uppercase">✓ Correct!</h3>
+                <p className="text-text-primary font-medium text-base mt-1">You solved it successfully.</p>
                 <button
                   onClick={fetchPuzzle}
-                  className="mt-2 w-full bg-accent-green text-white py-2 font-semibold hover:bg-green-600 transition-colors"
+                  className="mt-4 btn-primary w-full py-3 text-xs uppercase tracking-wider"
                 >
                   Next Puzzle →
                 </button>
@@ -273,26 +291,30 @@ export default function Puzzle() {
             )}
 
             {status === 'wrong' && (
-              <div className="bg-accent-red/10 border border-accent-red/30 px-4 py-3 animate-slide-up">
-                <p className="text-accent-red font-semibold">✗ Incorrect</p>
-                <button
-                  onClick={showSolution}
-                  className="mt-2 w-full bg-surface border border-border text-text-primary py-2 text-sm hover:bg-elevated transition-colors"
-                >
-                  Show Solution
-                </button>
-                <button
-                  onClick={fetchPuzzle}
-                  className="mt-1 w-full bg-accent-blue text-white py-2 text-sm font-semibold hover:bg-blue-600 transition-colors"
-                >
-                  Next Puzzle →
-                </button>
+              <div className="glass-card border-red-500/30 p-5 shadow-lg bg-red-500/[0.02] flex-1 flex flex-col justify-center animate-slide-up">
+                <h3 className="text-accent-red font-bold text-sm tracking-wide uppercase">✗ Incorrect</h3>
+                <p className="text-text-primary font-medium text-base mt-1">You failed the puzzle solution.</p>
+                <div className="flex flex-col gap-2.5 mt-4">
+                  <button
+                    onClick={showSolution}
+                    className="btn-secondary w-full py-3 text-xs uppercase tracking-wider"
+                  >
+                    Show Solution
+                  </button>
+                  <button
+                    onClick={fetchPuzzle}
+                    className="btn-primary w-full py-3 text-xs uppercase tracking-wider"
+                  >
+                    Next Puzzle →
+                  </button>
+                </div>
               </div>
             )}
 
             {isLoading && (
-              <div className="bg-surface border border-border px-4 py-3 text-center">
-                <p className="text-text-muted text-sm animate-pulse">Loading puzzle...</p>
+              <div className="glass-card p-6 text-center flex-1 flex flex-col items-center justify-center">
+                <div className="w-8 h-8 rounded-full border-2 border-white/5 border-t-accent-blue animate-spin mb-3" />
+                <p className="text-text-muted text-sm font-light">Loading next tactical puzzle...</p>
               </div>
             )}
           </div>

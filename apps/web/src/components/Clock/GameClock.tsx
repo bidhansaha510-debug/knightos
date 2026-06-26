@@ -73,19 +73,16 @@ export default function GameClock({
   return (
     <div
       className={`
-        font-mono text-xl font-semibold px-4 py-2 min-w-[120px] text-center
-        transition-colors duration-200
+        font-mono text-xl font-bold px-4.5 py-2 rounded-xl min-w-[110px] text-center
+        transition-all duration-300 border backdrop-blur-md select-none
         ${isPlayerTurn && isActive
           ? isLow
-            ? 'bg-accent-red/20 text-accent-red'
-            : 'bg-surface text-text-primary'
-          : 'bg-base text-text-muted'
+            ? 'bg-red-500/15 border-red-500/30 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)]'
+            : 'bg-blue-500/15 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+          : 'bg-white/[0.02] border-white/5 text-text-muted'
         }
         ${isCritical && isPlayerTurn && isActive ? 'clock-critical' : ''}
       `}
-      style={{
-        borderLeft: isPlayerTurn && isActive ? '3px solid var(--accent-blue)' : '3px solid transparent',
-      }}
     >
       {formatTime(displayTime)}
     </div>

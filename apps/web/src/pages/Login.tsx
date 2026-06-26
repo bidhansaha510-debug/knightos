@@ -33,26 +33,30 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-base flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-base flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Decorative gradient glowing blobs in background */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-blue/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-purple/10 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="w-full max-w-md bg-surface/60 border border-border/80 backdrop-blur-lg rounded-2xl p-8 shadow-2xl relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold font-display text-text-primary">
+          <h1 className="text-4xl font-extrabold font-display text-text-primary tracking-tight">
             Knight<span className="text-accent-blue">OS</span>
           </h1>
-          <p className="text-text-muted text-sm mt-2">
-            {isRegister ? 'Create your account' : 'Welcome back'}
+          <p className="text-text-muted text-sm mt-2 font-medium">
+            {isRegister ? 'Create your new account' : 'Sign in to your account'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-accent-red/10 border border-accent-red/30 px-4 py-2 text-accent-red text-sm">
+            <div className="bg-accent-red/15 border border-accent-red/30 px-4 py-3 rounded-lg text-accent-red text-sm font-medium">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="login-username" className="block text-text-muted text-xs font-semibold mb-1 uppercase tracking-wider">
+            <label htmlFor="login-username" className="block text-text-muted text-xs font-bold mb-1.5 uppercase tracking-wider">
               Username
             </label>
             <input
@@ -60,8 +64,8 @@ export default function Login() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-surface border border-border text-text-primary px-3 py-2.5
-                       focus:border-accent-blue transition-colors"
+              className="w-full bg-base/50 border border-border text-text-primary px-3 py-2.5
+                       focus:border-accent-blue transition-colors rounded-lg font-medium"
               placeholder="Enter username"
               required
               minLength={3}
@@ -72,7 +76,7 @@ export default function Login() {
 
           {isRegister && (
             <div className="animate-slide-up">
-              <label htmlFor="login-email" className="block text-text-muted text-xs font-semibold mb-1 uppercase tracking-wider">
+              <label htmlFor="login-email" className="block text-text-muted text-xs font-bold mb-1.5 uppercase tracking-wider">
                 Email
               </label>
               <input
@@ -80,9 +84,9 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-surface border border-border text-text-primary px-3 py-2.5
-                         focus:border-accent-blue transition-colors"
-                placeholder="Enter email"
+                className="w-full bg-base/50 border border-border text-text-primary px-3 py-2.5
+                         focus:border-accent-blue transition-colors rounded-lg font-medium"
+                placeholder="Enter email address"
                 required={isRegister}
                 autoComplete="email"
               />
@@ -90,7 +94,7 @@ export default function Login() {
           )}
 
           <div>
-            <label htmlFor="login-password" className="block text-text-muted text-xs font-semibold mb-1 uppercase tracking-wider">
+            <label htmlFor="login-password" className="block text-text-muted text-xs font-bold mb-1.5 uppercase tracking-wider">
               Password
             </label>
             <input
@@ -98,8 +102,8 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-surface border border-border text-text-primary px-3 py-2.5
-                       focus:border-accent-blue transition-colors"
+              className="w-full bg-base/50 border border-border text-text-primary px-3 py-2.5
+                       focus:border-accent-blue transition-colors rounded-lg font-medium"
               placeholder="Enter password"
               required
               minLength={6}
@@ -110,10 +114,10 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-accent-blue text-white py-2.5 font-semibold
-                     hover:bg-blue-600 transition-colors disabled:opacity-50"
+            className="w-full bg-accent-blue text-white py-3 font-semibold rounded-lg shadow-lg shadow-accent-blue/20
+                     hover:bg-blue-600 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-50"
           >
-            {isLoading ? '...' : isRegister ? 'Create Account' : 'Sign In'}
+            {isLoading ? 'Processing...' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
@@ -123,7 +127,7 @@ export default function Login() {
               setIsRegister(!isRegister);
               setError('');
             }}
-            className="text-accent-blue text-sm hover:underline"
+            className="text-accent-blue text-sm font-semibold hover:text-blue-400 transition-colors"
           >
             {isRegister
               ? 'Already have an account? Sign in'
@@ -131,12 +135,12 @@ export default function Login() {
           </button>
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center pt-4 border-t border-border/40">
           <button
             onClick={() => navigate('/')}
-            className="text-text-muted text-xs hover:text-text-primary"
+            className="text-text-muted text-xs hover:text-text-primary transition-colors flex items-center justify-center gap-1.5 mx-auto font-medium"
           >
-            ← Back to home
+            <span>←</span> Back to home
           </button>
         </div>
       </div>

@@ -40,7 +40,17 @@ export const useGameStore = create<GameStoreState>((set) => ({
   toggleFlipped: () => set((s) => ({ isFlipped: !s.isFlipped })),
   setFlipped: (isFlipped) => set({ isFlipped }),
   addMove: (move) =>
-    set((s) => ({ moveHistory: [...s.moveHistory, move] })),
+    set((s) => ({
+      moveHistory: [...s.moveHistory, move],
+      gameState: s.gameState
+        ? {
+            ...s.gameState,
+            fen: move.fen,
+            turn: (move.fen.split(' ')[1] as any) || (s.gameState.turn === 'w' ? 'b' : 'w'),
+            moves: [...(s.gameState.moves || []), move],
+          }
+        : null,
+    })),
   updateClocks: (whiteClock, blackClock) =>
     set((s) => ({
       gameState: s.gameState
