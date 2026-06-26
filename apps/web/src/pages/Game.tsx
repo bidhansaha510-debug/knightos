@@ -8,6 +8,40 @@ import { useChessGame } from '../hooks/useChessGame';
 import { useGameStore } from '../stores/gameStore';
 import { useUserStore } from '../stores/userStore';
 
+function PlayerRow({
+  name, rating, timeMs, isActive, isPlayerTurn
+}: {
+  name: string; rating: number; timeMs: number; isActive: boolean; isPlayerTurn: boolean;
+}) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 'var(--space-2)',
+      padding: 'var(--space-2) var(--space-4)',
+    }}>
+      <div style={{
+        width: 32, height: 32, borderRadius: '50%',
+        border: '1px solid var(--c-border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--c-elevated)',
+        fontFamily: 'var(--font-ui)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)',
+        color: 'var(--c-text-2)', flexShrink: 0,
+      }}>
+        {(name || '?')[0].toUpperCase()}
+      </div>
+      <span style={{ fontFamily: 'var(--font-ui)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)' }}>
+        {name || '—'}
+      </span>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}>
+        {rating || 1500}
+      </span>
+      <span style={{ flex: 1 }} />
+      <GameClock timeMs={timeMs} isActive={isActive} isPlayerTurn={isPlayerTurn} />
+    </div>
+  );
+}
+
 export default function Game() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -40,7 +74,6 @@ export default function Game() {
   const isDrawOfferFromOpponent = drawOffer !== null && drawOffer !== playerColor;
   const isDrawOfferFromUs = drawOffer !== null && drawOffer === playerColor;
 
-  // Determine check square
   let checkSquare: string | null = null;
   if (gameState?.fen) {
     try {
@@ -68,242 +101,163 @@ export default function Game() {
     );
   }
 
-  // Opponent info (top)
   const topName = isFlipped ? gameState?.whiteUsername : gameState?.blackUsername;
   const topRating = isFlipped ? gameState?.whiteRating : gameState?.blackRating;
   const topClock = isFlipped ? (gameState?.whiteClock ?? 300000) : (gameState?.blackClock ?? 300000);
   const topTurn = isFlipped ? gameState?.turn === 'w' : gameState?.turn === 'b';
 
-  // Player info (bottom)
   const botName = isFlipped ? gameState?.blackUsername : gameState?.whiteUsername;
   const botRating = isFlipped ? gameState?.blackRating : gameState?.whiteRating;
   const botClock = isFlipped ? (gameState?.blackClock ?? 300000) : (gameState?.whiteClock ?? 300000);
   const botTurn = isFlipped ? gameState?.turn === 'b' : gameState?.turn === 'w';
 
+  const isGameActive = gameState?.status === 'active';
+
   return (
-    <div style={{
-      display: 'flex',
-      height: 'calc(100vh - 48px)',
-      background: 'var(--c-base)',
-    }}>
-      {/* Board column */}
-      <div style={{
-        flex: 1,
+    <>
+      {/* Desktop layout */}
+      <div className="game-desktop" style={{
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-4)',
-        minWidth: 0,
+        height: 'calc(100vh - 48px)',
+        background: 'var(--c-base)',
       }}>
-        {/* Opponent player card */}
+        {/* Board — takes all remaining width, no padding between it and sidebar */}
         <div style={{
+          flex: 1,
           display: 'flex',
           alignItems: 'center',
-          gap: 'var(--space-2)',
-          width: '100%',
-          maxWidth: 680,
-          padding: 'var(--space-2) 0',
+          justifyContent: 'center',
+          minWidth: 0,
         }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%',
-            border: '1px solid var(--c-border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'var(--c-elevated)',
-            fontFamily: 'var(--font-ui)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)',
-            color: 'var(--c-text-2)',
-            flexShrink: 0,
-          }}>
-            {(topName || '?')[0].toUpperCase()}
+          <div style={{ width: '100%', maxWidth: 680, aspectRatio: '1', padding: 'var(--space-4)' }}>
+            <ChessBoard
+              fen={gameState?.fen}
+              flipped={isBlack || isFlipped}
+              interactive={isPlayer && isGameActive}
+              onMove={(from, to, promotion) => { makeMove(from, to, promotion); return true; }}
+              lastMove={lastMove}
+              checkSquare={checkSquare}
+              size={680}
+            />
           </div>
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)' }}>
-            {topName || 'Opponent'}
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}>
-            {topRating || 1500}
-          </span>
-          <span style={{ flex: 1 }} />
-          <GameClock
-            timeMs={topClock}
-            isActive={gameState?.status === 'active'}
-            isPlayerTurn={topTurn}
-          />
         </div>
 
-        {/* Board */}
+        {/* Sidebar — 280px, contains player cards + move list + controls */}
         <div style={{
-          width: '100%',
-          maxWidth: 680,
-          aspectRatio: '1',
-        }}>
-          <ChessBoard
-            fen={gameState?.fen}
-            flipped={isBlack || isFlipped}
-            interactive={isPlayer && gameState?.status === 'active'}
-            onMove={(from, to, promotion) => {
-              makeMove(from, to, promotion);
-              return true;
-            }}
-            lastMove={lastMove}
-            checkSquare={checkSquare}
-            size={680}
-          />
-        </div>
-
-        {/* Player card */}
-        <div style={{
+          width: 280,
+          background: 'var(--c-surface)',
+          borderLeft: '1px solid var(--c-border)',
           display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2)',
-          width: '100%',
-          maxWidth: 680,
-          padding: 'var(--space-2) 0',
+          flexDirection: 'column',
+          flexShrink: 0,
         }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%',
-            border: '1px solid var(--c-border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'var(--c-elevated)',
-            fontFamily: 'var(--font-ui)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)',
-            color: 'var(--c-text-2)',
-            flexShrink: 0,
-          }}>
-            {(botName || '?')[0].toUpperCase()}
+          {/* Opponent (top of sidebar) */}
+          <div style={{ borderBottom: '1px solid var(--c-border)' }}>
+            <PlayerRow
+              name={topName || 'Opponent'}
+              rating={topRating || 1500}
+              timeMs={topClock}
+              isActive={isGameActive}
+              isPlayerTurn={topTurn}
+            />
           </div>
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)' }}>
-            {botName || 'You'}
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}>
-            {botRating || 1500}
-          </span>
-          <span style={{ flex: 1 }} />
-          <GameClock
-            timeMs={botClock}
-            isActive={gameState?.status === 'active'}
-            isPlayerTurn={botTurn}
-          />
-        </div>
-      </div>
 
-      {/* Sidebar */}
-      <div style={{
-        width: 280,
-        background: 'var(--c-surface)',
-        borderLeft: '1px solid var(--c-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        flexShrink: 0,
-      }}>
-        {/* Game info */}
-        <div style={{
-          padding: 'var(--space-3) var(--space-4)',
-          borderBottom: '1px solid var(--c-border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', fontWeight: 'var(--weight-medium)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {gameState?.timeControl || '—'}
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <div style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: isConnected ? 'var(--c-win)' : 'var(--c-loss)',
-            }} />
-            {gameState?.rated && (
-              <span style={{
-                fontSize: 'var(--text-xs)', color: 'var(--c-warning)',
-                fontWeight: 'var(--weight-medium)',
-              }}>
-                Rated
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Move list */}
-        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <MoveList moves={gameState?.moves || []} />
-        </div>
-
-        {/* Draw offer notification */}
-        {isDrawOfferFromOpponent && gameState?.status === 'active' && (
+          {/* Game meta */}
           <div style={{
-            padding: 'var(--space-3) var(--space-4)',
-            borderTop: '1px solid var(--c-border)',
-            background: 'var(--c-elevated)',
-          }}>
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text)', marginBottom: 'var(--space-2)' }}>
-              Opponent offers a draw
-            </p>
-            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-              <button onClick={acceptDraw} className="btn-primary" style={{ flex: 1, padding: '8px' }}>
-                Accept
-              </button>
-              <button onClick={declineDraw} className="btn-secondary" style={{ flex: 1, padding: '8px' }}>
-                Decline
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Game over */}
-        {gameOverMessage && (
-          <div style={{
-            padding: 'var(--space-4)',
-            borderTop: '1px solid var(--c-border)',
-            background: 'var(--c-elevated)',
-          }}>
-            <p style={{ fontSize: 'var(--text-md)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)', marginBottom: 'var(--space-1)' }}>
-              Game Over
-            </p>
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)', marginBottom: 'var(--space-3)' }}>
-              {gameOverMessage}
-            </p>
-            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-              <button onClick={() => navigate('/play')} className="btn-primary" style={{ flex: 1 }}>
-                New Game
-              </button>
-              <button onClick={() => navigate(`/games/${id}`)} className="btn-secondary" style={{ flex: 1 }}>
-                Analyze
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Controls */}
-        {isPlayer && gameState?.status === 'active' && !gameOverMessage && (
-          <div style={{
-            padding: 'var(--space-3) var(--space-4)',
-            borderTop: '1px solid var(--c-border)',
+            padding: 'var(--space-2) var(--space-4)',
+            borderBottom: '1px solid var(--c-border)',
             display: 'flex',
-            gap: 'var(--space-2)',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}>
-            <button onClick={toggleFlipped} className="btn-ghost" style={{ flex: 1 }}>
-              Flip
-            </button>
-            <button
-              onClick={offerDraw}
-              disabled={isDrawOfferFromUs}
-              className="btn-ghost"
-              style={{
-                flex: 1,
-                color: isDrawOfferFromUs ? 'var(--c-warning)' : undefined,
-                opacity: isDrawOfferFromUs ? 0.6 : 1,
-              }}
-            >
-              {isDrawOfferFromUs ? 'Pending' : 'Draw'}
-            </button>
-            <button
-              onClick={() => { if (confirm('Resign this game?')) resign(); }}
-              className="btn-ghost"
-              style={{ flex: 1 }}
-            >
-              Resign
-            </button>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', fontWeight: 'var(--weight-medium)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {gameState?.timeControl || '—'}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: isConnected ? 'var(--c-win)' : 'var(--c-loss)' }} />
+              {gameState?.rated && (
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-warning)', fontWeight: 'var(--weight-medium)' }}>Rated</span>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Move list */}
+          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <MoveList moves={gameState?.moves || []} />
+          </div>
+
+          {/* Player (bottom of sidebar) */}
+          <div style={{ borderTop: '1px solid var(--c-border)' }}>
+            <PlayerRow
+              name={botName || 'You'}
+              rating={botRating || 1500}
+              timeMs={botClock}
+              isActive={isGameActive}
+              isPlayerTurn={botTurn}
+            />
+          </div>
+
+          {/* Draw offer */}
+          {isDrawOfferFromOpponent && isGameActive && (
+            <div style={{ padding: 'var(--space-3) var(--space-4)', borderTop: '1px solid var(--c-border)', background: 'var(--c-elevated)' }}>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text)', marginBottom: 'var(--space-2)' }}>Opponent offers a draw</p>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button onClick={acceptDraw} className="btn-primary" style={{ flex: 1, padding: '8px' }}>Accept</button>
+                <button onClick={declineDraw} className="btn-secondary" style={{ flex: 1, padding: '8px' }}>Decline</button>
+              </div>
+            </div>
+          )}
+
+          {/* Game over */}
+          {gameOverMessage && (
+            <div style={{ padding: 'var(--space-4)', borderTop: '1px solid var(--c-border)', background: 'var(--c-elevated)' }}>
+              <p style={{ fontSize: 'var(--text-md)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)', marginBottom: 'var(--space-1)' }}>Game Over</p>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)', marginBottom: 'var(--space-3)' }}>{gameOverMessage}</p>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button onClick={() => navigate('/play')} className="btn-primary" style={{ flex: 1 }}>New Game</button>
+                <button onClick={() => navigate(`/games/${id}`)} className="btn-secondary" style={{ flex: 1 }}>Analyze</button>
+              </div>
+            </div>
+          )}
+
+          {/* Controls */}
+          {isPlayer && isGameActive && !gameOverMessage && (
+            <div style={{ padding: 'var(--space-3) var(--space-4)', borderTop: '1px solid var(--c-border)', display: 'flex', gap: 'var(--space-2)' }}>
+              <button onClick={toggleFlipped} className="btn-ghost" style={{ flex: 1 }}>Flip</button>
+              <button
+                onClick={offerDraw}
+                disabled={isDrawOfferFromUs}
+                className="btn-ghost"
+                style={{ flex: 1, color: isDrawOfferFromUs ? 'var(--c-warning)' : undefined, opacity: isDrawOfferFromUs ? 0.6 : 1 }}
+              >
+                {isDrawOfferFromUs ? 'Pending' : 'Draw'}
+              </button>
+              <button onClick={() => { if (confirm('Resign this game?')) resign(); }} className="btn-ghost" style={{ flex: 1 }}>
+                Resign
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Mobile layout styles injected via <style> tag */}
+      <style>{`
+        @media (max-width: 768px) {
+          .game-desktop {
+            flex-direction: column !important;
+            height: auto !important;
+            min-height: calc(100vh - 48px);
+          }
+          .game-desktop > div:first-child {
+            padding: 0 !important;
+          }
+          .game-desktop > div:last-child {
+            width: 100% !important;
+            border-left: none !important;
+            border-top: 1px solid var(--c-border);
+          }
+        }
+      `}</style>
+    </>
   );
 }

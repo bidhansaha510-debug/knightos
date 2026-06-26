@@ -173,15 +173,9 @@ export default function Puzzle() {
   const sideToMove = puzzle ? (puzzle.fen.split(' ')[1] === 'w' ? false : true) : false;
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 48px)', background: 'var(--c-base)' }}>
-      {/* Board section — 60% */}
-      <div style={{
-        flex: '0 0 60%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-4)',
-      }}>
+    <div className="puzzle-layout" style={{ background: 'var(--c-base)' }}>
+      {/* Board section */}
+      <div className="puzzle-board">
         <div style={{ width: '100%', maxWidth: 560, aspectRatio: '1' }}>
           <ChessBoard
             fen={chess.fen()}
@@ -194,17 +188,7 @@ export default function Puzzle() {
         </div>
       </div>
 
-      {/* Info panel — 40% */}
-      <div style={{
-        flex: '0 0 40%',
-        background: 'var(--c-surface)',
-        borderLeft: '1px solid var(--c-border)',
-        padding: 'var(--space-5) var(--space-4)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-4)',
-        overflowY: 'auto',
-      }}>
+      <div className="puzzle-panel">
         {/* Stats row */}
         <div style={{ display: 'flex', gap: 'var(--space-6)' }}>
           <div>

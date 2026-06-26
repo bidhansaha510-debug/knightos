@@ -115,7 +115,7 @@ export default function Lobby() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 'var(--space-6)' }}>
+      <div className="lobby-grid">
         {/* Time control groups */}
         <div>
           {TIME_CONTROL_GROUPS.map((group) => (

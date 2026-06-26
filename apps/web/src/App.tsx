@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { useUserStore } from './stores/userStore';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -19,116 +19,184 @@ const NAV_ITEMS = [
   { path: '/leaderboard', label: 'Leaderboard' },
 ];
 
+function NavLink({ path, label, isActive }: { path: string; label: string; isActive: boolean }) {
+  return (
+    <Link
+      to={path}
+      style={{
+        fontFamily: 'var(--font-ui)',
+        fontSize: 'var(--text-sm)',
+        fontWeight: 'var(--weight-medium)',
+        color: isActive ? 'var(--c-text)' : 'var(--c-text-2)',
+        textDecoration: 'none',
+        padding: '0 var(--space-3)',
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+        borderBottom: isActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+        transition: 'color var(--dur-fast) var(--ease-out)',
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--c-text)';
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--c-text-2)';
+      }}
+    >
+      {label}
+    </Link>
+  );
+}
+
 function Header() {
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Hide header on login page
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   if (location.pathname === '/login') return null;
 
   return (
-    <header
-      style={{
-        height: 48,
-        background: 'var(--c-surface)',
-        borderBottom: '1px solid var(--c-border)',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 var(--space-4)',
-        gap: 'var(--space-5)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}
-    >
-      {/* Logo */}
-      <Link
-        to="/"
+    <>
+      <header
         style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'var(--text-md)',
-          fontWeight: 'var(--weight-bold)',
-          color: 'var(--c-text)',
-          textDecoration: 'none',
-          marginRight: 'var(--space-4)',
-          flexShrink: 0,
+          height: 48,
+          background: 'var(--c-surface)',
+          borderBottom: '1px solid var(--c-border)',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 var(--space-4)',
+          gap: 'var(--space-5)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
         }}
       >
-        KnightOS
-      </Link>
+        {/* Logo */}
+        <Link
+          to="/"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--text-md)',
+            fontWeight: 'var(--weight-bold)',
+            color: 'var(--c-text)',
+            textDecoration: 'none',
+            flexShrink: 0,
+          }}
+        >
+          KnightOS
+        </Link>
 
-      {/* Nav links */}
-      <nav style={{ display: 'flex', gap: 'var(--space-1)', flex: 1 }}>
-        {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
+        {/* Desktop nav */}
+        <nav className="nav-desktop" style={{ display: 'flex', gap: 'var(--space-1)', flex: 1 }}>
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.path} path={item.path} label={item.label} isActive={location.pathname === item.path} />
+          ))}
+        </nav>
+
+        {/* Desktop user section */}
+        <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          {user ? (
+            <>
+              <Link
+                to={`/user/${user.username}`}
+                style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)', textDecoration: 'none' }}
+              >
+                {user.username}
+              </Link>
+              <Link to="/settings" className="btn-ghost" style={{ fontSize: 'var(--text-sm)' }}>⚙</Link>
+              <button onClick={() => logout()} className="btn-ghost" style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-primary" style={{ padding: '6px var(--space-4)' }}>Sign In</Link>
+          )}
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="nav-mobile-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{
+            display: 'none',
+            padding: 'var(--space-2)',
+            color: 'var(--c-text)',
+            fontSize: 'var(--text-md)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            marginLeft: 'auto',
+          }}
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+      </header>
+
+      {/* Mobile dropdown menu */}
+      {mobileMenuOpen && (
+        <div
+          className="nav-mobile-menu"
+          style={{
+            position: 'fixed',
+            top: 48,
+            left: 0,
+            right: 0,
+            background: 'var(--c-surface)',
+            borderBottom: '1px solid var(--c-border)',
+            zIndex: 49,
+            padding: 'var(--space-2) 0',
+            display: 'none',
+          }}
+        >
+          {NAV_ITEMS.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               style={{
-                fontFamily: 'var(--font-ui)',
+                display: 'block',
+                padding: 'var(--space-3) var(--space-4)',
                 fontSize: 'var(--text-sm)',
                 fontWeight: 'var(--weight-medium)',
-                color: isActive ? 'var(--c-text)' : 'var(--c-text-2)',
+                color: location.pathname === item.path ? 'var(--c-text)' : 'var(--c-text-2)',
                 textDecoration: 'none',
-                padding: '0 var(--space-3)',
-                height: 48,
-                display: 'flex',
-                alignItems: 'center',
-                borderBottom: isActive ? '2px solid var(--c-accent)' : '2px solid transparent',
-                transition: `color var(--dur-fast) var(--ease-out)`,
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--c-text)';
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--c-text-2)';
+                borderLeft: location.pathname === item.path ? '2px solid var(--c-accent)' : '2px solid transparent',
               }}
             >
               {item.label}
             </Link>
-          );
-        })}
-      </nav>
+          ))}
+          <div style={{ borderTop: '1px solid var(--c-border)', padding: 'var(--space-3) var(--space-4)' }}>
+            {user ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                <Link to={`/user/${user.username}`} style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text)', textDecoration: 'none' }}>
+                  {user.username}
+                </Link>
+                <Link to="/settings" style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)', textDecoration: 'none' }}>Settings</Link>
+                <button onClick={() => logout()} style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="btn-primary" style={{ width: '100%', textDecoration: 'none' }}>Sign In</Link>
+            )}
+          </div>
+        </div>
+      )}
 
-      {/* User section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-        {user ? (
-          <>
-            <Link
-              to={`/user/${user.username}`}
-              style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 'var(--weight-medium)',
-                color: 'var(--c-text)',
-                textDecoration: 'none',
-              }}
-            >
-              {user.username}
-            </Link>
-            <Link
-              to="/settings"
-              className="btn-ghost"
-              style={{ fontSize: 'var(--text-sm)' }}
-            >
-              ⚙
-            </Link>
-            <button
-              onClick={() => logout()}
-              className="btn-ghost"
-              style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}
-            >
-              Sign out
-            </button>
-          </>
-        ) : (
-          <Link to="/login" className="btn-primary" style={{ padding: '6px var(--space-4)' }}>
-            Sign In
-          </Link>
-        )}
-      </div>
-    </header>
+      <style>{`
+        @media (max-width: 768px) {
+          .nav-desktop { display: none !important; }
+          .nav-mobile-toggle { display: block !important; }
+          .nav-mobile-menu { display: block !important; }
+        }
+      `}</style>
+    </>
   );
 }
 
@@ -150,19 +218,10 @@ export default function App() {
         justifyContent: 'center',
       }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-md)',
-            fontWeight: 'var(--weight-bold)',
-            color: 'var(--c-text)',
-          }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
             KnightOS
           </p>
-          <p style={{
-            color: 'var(--c-text-2)',
-            fontSize: 'var(--text-sm)',
-            marginTop: 'var(--space-2)',
-          }}>
+          <p style={{ color: 'var(--c-text-2)', fontSize: 'var(--text-sm)', marginTop: 'var(--space-2)' }}>
             Loading…
           </p>
         </div>
@@ -186,24 +245,10 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/games/:id" element={<Analysis />} />
           <Route path="*" element={
-            <div style={{
-              minHeight: 'calc(100vh - 48px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
+            <div style={{ minHeight: 'calc(100vh - 48px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
                 <p style={{ fontSize: 'var(--text-lg)', color: 'var(--c-text-2)' }}>Page not found</p>
-                <Link
-                  to="/"
-                  style={{
-                    color: 'var(--c-accent)',
-                    fontSize: 'var(--text-sm)',
-                    textDecoration: 'none',
-                    marginTop: 'var(--space-2)',
-                    display: 'inline-block',
-                  }}
-                >
+                <Link to="/" style={{ color: 'var(--c-accent)', fontSize: 'var(--text-sm)', textDecoration: 'none', marginTop: 'var(--space-2)', display: 'inline-block' }}>
                   Go home
                 </Link>
               </div>

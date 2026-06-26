@@ -134,7 +134,7 @@ export default function Analysis() {
   }, [inputPgn, isEngineOn, isReady, analyze]);
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 48px)', background: 'var(--c-base)' }}>
+    <div className="analysis-layout" style={{ background: 'var(--c-base)' }}>
       {/* Eval bar */}
       {isEngineOn && (
         <EvalBar eval={evalCp} mate={evalMate} />
