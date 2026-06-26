@@ -82,6 +82,7 @@ export default function ChessBoard({
     x: number;
     y: number;
   } | null>(null);
+  const pointerHandledRef = useRef(false);
   const [showPromotion, setShowPromotion] = useState<{
     from: string;
     to: string;
@@ -120,6 +121,12 @@ export default function ChessBoard({
     (square: string) => {
       if (!interactive) return;
 
+      // If pointer interaction (drag/click on piece) already handled this, skip
+      if (pointerHandledRef.current) {
+        pointerHandledRef.current = false;
+        return;
+      }
+
       if (selectedSquare === square) {
         // Deselect
         setInternalSelectedSquare(null);
@@ -157,6 +164,10 @@ export default function ChessBoard({
           const moves = chess.moves({ square: square as ChessSquare, verbose: true });
           setInternalLegalMoves(moves.map((m) => m.to));
         }
+      } else {
+        // Clicked empty square with no selection or not a legal move — deselect
+        setInternalSelectedSquare(null);
+        setInternalLegalMoves([]);
       }
     },
     [interactive, selectedSquare, legalMoves, pieces, chess, onMove]
@@ -189,6 +200,7 @@ export default function ChessBoard({
       const x = (e.clientX - rect.left) * scale;
       const y = (e.clientY - rect.top) * scale;
 
+      pointerHandledRef.current = true;
       setDragging({ piece, from: square, x, y });
       setInternalSelectedSquare(square);
       const moves = chess.moves({ square: square as ChessSquare, verbose: true });
@@ -240,6 +252,7 @@ export default function ChessBoard({
             setInternalLegalMoves([]);
           }
         }
+        // If dropped on the same square (click), keep piece selected with legal moves showing
       }
 
       try {
@@ -377,7 +390,7 @@ export default function ChessBoard({
           })
         )}
 
-        {/* Legal move indicators */}
+        {/* Legal move indicators — clickable to make a move */}
         {legalMoves.map((square) => {
           const { col, row } = squareToCoords(square, flipped);
           const x = coordSize + col * squareSize;
@@ -395,7 +408,8 @@ export default function ChessBoard({
                 fill="none"
                 stroke="var(--sq-legal)"
                 strokeWidth={squareSize * 0.08}
-                pointerEvents="none"
+                onClick={() => handleSquareClick(square)}
+                className="cursor-pointer"
               />
             );
           }
@@ -408,7 +422,8 @@ export default function ChessBoard({
               cy={y + squareSize / 2}
               r={squareSize * 0.14}
               fill="var(--sq-legal)"
-              pointerEvents="none"
+              onClick={() => handleSquareClick(square)}
+              className="cursor-pointer"
             />
           );
         })}
@@ -432,7 +447,6 @@ export default function ChessBoard({
               key={`piece-${square}`}
               transform={`translate(${x}, ${y})`}
               onPointerDown={(e) => handlePointerDown(e, square)}
-              onClick={() => handleSquareClick(square)}
               className="cursor-pointer"
               style={{ touchAction: 'none' }}
             >

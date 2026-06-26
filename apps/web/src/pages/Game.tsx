@@ -28,7 +28,7 @@ export default function Game() {
     setGameOverMessage(`${messages[termination] || termination} — ${result}`);
   }, []);
 
-  const { gameState, makeMove, resign, offerDraw, isConnected } = useChessGame({
+  const { gameState, makeMove, resign, offerDraw, acceptDraw, declineDraw, drawOffer, isConnected } = useChessGame({
     gameId: id || null,
     onGameOver: handleGameOver,
   });
@@ -36,7 +36,12 @@ export default function Game() {
   const isWhite = user?.id === gameState?.whiteId;
   const isBlack = user?.id === gameState?.blackId;
   const isPlayer = isWhite || isBlack;
-  const playerColor = isWhite ? 'w' : 'b';
+  const playerColor = isWhite ? 'white' : 'black';
+
+  // Is the draw offer from the opponent (so we should show accept/decline)?
+  const isDrawOfferFromOpponent = drawOffer !== null && drawOffer !== playerColor;
+  // Is the draw offer from us (so we should show "pending")?
+  const isDrawOfferFromUs = drawOffer !== null && drawOffer === playerColor;
 
   // Determine check square
   let checkSquare: string | null = null;
@@ -174,6 +179,29 @@ export default function Game() {
             </div>
           </div>
 
+          {/* Draw offer notification */}
+          {isDrawOfferFromOpponent && gameState?.status === 'active' && (
+            <div className="glass-card border-accent-amber/30 p-4 animate-slide-up shadow-lg bg-amber-500/[0.04]">
+              <p className="text-text-primary font-bold text-sm text-center mb-3">
+                ½ Your opponent offers a draw
+              </p>
+              <div className="flex gap-2.5">
+                <button
+                  onClick={acceptDraw}
+                  className="btn-primary flex-1 py-2.5 text-xs uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500"
+                >
+                  ✓ Accept
+                </button>
+                <button
+                  onClick={declineDraw}
+                  className="btn-secondary flex-1 py-2.5 text-xs uppercase tracking-wider hover:text-accent-red hover:border-accent-red/30 hover:bg-red-500/10"
+                >
+                  ✕ Decline
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Game over overlay */}
           {gameOverMessage && (
             <div className="glass-card border-accent-blue/30 p-5 animate-slide-up shadow-lg bg-blue-500/[0.02]">
@@ -208,10 +236,15 @@ export default function Game() {
               </button>
               <button
                 onClick={offerDraw}
-                className="btn-secondary flex-1 py-3 text-sm font-semibold flex items-center justify-center gap-1.5 hover:text-accent-amber hover:border-accent-amber/30 hover:bg-amber-500/10"
-                title="Offer draw"
+                disabled={isDrawOfferFromUs}
+                className={`btn-secondary flex-1 py-3 text-sm font-semibold flex items-center justify-center gap-1.5
+                  ${isDrawOfferFromUs
+                    ? 'opacity-50 cursor-not-allowed text-accent-amber border-accent-amber/30 bg-amber-500/10'
+                    : 'hover:text-accent-amber hover:border-accent-amber/30 hover:bg-amber-500/10'
+                  }`}
+                title={isDrawOfferFromUs ? 'Draw offer pending...' : 'Offer draw'}
               >
-                <span>½</span> Draw
+                <span>½</span> {isDrawOfferFromUs ? 'Pending' : 'Draw'}
               </button>
               <button
                 onClick={() => {

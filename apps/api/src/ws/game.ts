@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma.js';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { parseTimeControl, getTimeControlCategory } from '@knightos/shared';
+import { updateGameRatings } from '../services/glicko.service.js';
 import type { JwtPayload } from '../middleware/auth.js';
 import type { WebSocket } from 'ws';
 
@@ -86,6 +87,15 @@ async function endGame(
     });
   } catch (err) {
     console.error('Failed to persist game:', err);
+  }
+
+  // Update ratings if the game was rated
+  if (state.rated === 'true') {
+    try {
+      await updateGameRatings(state.whiteId, state.blackId, result, state.timeControl);
+    } catch (err) {
+      console.error('Failed to update ratings:', err);
+    }
   }
 
   // Set game status to ended in Redis

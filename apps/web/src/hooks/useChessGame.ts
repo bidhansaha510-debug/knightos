@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
 import { getWsUrl } from '../config';
 import { useWebSocket } from './useWebSocket';
@@ -25,6 +25,7 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
   } = useGameStore();
 
   const chessRef = useRef(new Chess());
+  const [drawOffer, setDrawOffer] = useState<'white' | 'black' | null>(null);
 
   const wsUrl = gameId
     ? getWsUrl(`/ws/game/${gameId}`)
@@ -59,6 +60,8 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
               to: moveMsg.uci.slice(2, 4),
             });
           }
+          // Clear any pending draw offer when a move is made
+          setDrawOffer(null);
           break;
         }
         case 'game_over': {
@@ -72,15 +75,20 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
               termination: overMsg.termination,
             });
           }
+          setDrawOffer(null);
           onGameOver?.(overMsg.result, overMsg.termination);
           break;
         }
         case 'illegal_move': {
-          // Could show a notification
           break;
         }
         case 'draw_offered': {
-          // Could show a notification
+          const drawMsg = msg as any;
+          setDrawOffer(drawMsg.by);
+          break;
+        }
+        case 'draw_declined': {
+          setDrawOffer(null);
           break;
         }
         case 'opponent_disconnected': {
@@ -123,10 +131,12 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
 
   const acceptDraw = useCallback(() => {
     send({ type: 'draw_accept' } satisfies ClientGameMessage);
+    setDrawOffer(null);
   }, [send]);
 
   const declineDraw = useCallback(() => {
     send({ type: 'draw_decline' } satisfies ClientGameMessage);
+    setDrawOffer(null);
   }, [send]);
 
   const sendChat = useCallback(
@@ -139,6 +149,7 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
   useEffect(() => {
     return () => {
       reset();
+      setDrawOffer(null);
     };
   }, [gameId]);
 
@@ -151,6 +162,8 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
     offerDraw,
     acceptDraw,
     declineDraw,
+    drawOffer,
     sendChat,
   };
 }
+

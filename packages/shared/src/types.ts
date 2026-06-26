@@ -199,6 +199,10 @@ export interface WsDrawOfferedMessage {
   by: 'white' | 'black';
 }
 
+export interface WsDrawDeclinedMessage {
+  type: 'draw_declined';
+}
+
 export interface WsChatResponseMessage {
   type: 'chat';
   from: string;
@@ -219,6 +223,7 @@ export type ServerGameMessage =
   | WsIllegalMoveMessage
   | WsGameOverMessage
   | WsDrawOfferedMessage
+  | WsDrawDeclinedMessage
   | WsChatResponseMessage
   | WsOpponentDisconnectedMessage
   | WsOpponentReconnectedMessage;

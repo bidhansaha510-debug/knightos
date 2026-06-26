@@ -32,8 +32,7 @@ export function useStockfish(): UseStockfishReturn {
       // The stockfish npm package provides the engine files
       // We'll check for availability and use a stub if not available
       const worker = new Worker(
-        new URL('../workers/stockfish.worker.ts', import.meta.url),
-        { type: 'module' }
+        new URL('../workers/stockfish.worker.js', import.meta.url),
       );
 
       worker.onmessage = (e) => {
