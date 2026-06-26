@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: #0f1117;
+  --bg-surface: #1a1d27;
+  --bg-elevated: #222536;
+  --accent-blue: #3b82f6;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+  --text-primary: #f1f5f9;
+  --text-muted: #64748b;
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+  --border: #2d3148;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Selection */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: var(--text-primary);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Button base reset */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* Input reset */
+input, textarea {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font: inherit;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--accent-blue);
+  outline: none;
+}
+
+/* Chess board theme variables */
+.board-theme-classic {
+  --sq-light: #f0d9b5;
+  --sq-dark: #b58863;
+  --sq-selected: rgba(59, 130, 246, 0.5);
+  --sq-legal: rgba(59, 130, 246, 0.3);
+  --sq-lastmove: rgba(255, 255, 0, 0.2);
+  --sq-check: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0) 70%);
+}
+
+.board-theme-blue {
+  --sq-light: #dee3e6;
+  --sq-dark: #8ca2ad;
+  --sq-selected: rgba(59, 130, 246, 0.5);
+  --sq-legal: rgba(59, 130, 246, 0.3);
+  --sq-lastmove: rgba(155, 199, 0, 0.3);
+  --sq-check: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0) 70%);
+}
+
+.board-theme-green {
+  --sq-light: #ffffdd;
+  --sq-dark: #86a666;
+  --sq-selected: rgba(59, 130, 246, 0.5);
+  --sq-legal: rgba(59, 130, 246, 0.3);
+  --sq-lastmove: rgba(155, 199, 0, 0.3);
+  --sq-check: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0) 70%);
+}
+
+.board-theme-purple {
+  --sq-light: #9f90b0;
+  --sq-dark: #7d4a8d;
+  --sq-selected: rgba(59, 130, 246, 0.5);
+  --sq-legal: rgba(100, 100, 255, 0.3);
+  --sq-lastmove: rgba(155, 199, 0, 0.3);
+  --sq-check: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0) 70%);
+}
+
+.board-theme-pink {
+  --sq-light: #f0d0e0;
+  --sq-dark: #c07090;
+  --sq-selected: rgba(59, 130, 246, 0.5);
+  --sq-legal: rgba(59, 130, 246, 0.3);
+  --sq-lastmove: rgba(155, 199, 0, 0.3);
+  --sq-check: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0) 70%);
+}
+
+/* Pulse animation for low time */
+@keyframes clockPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.clock-critical {
+  animation: clockPulse 0.5s ease-in-out infinite;
+}
+
+/* Board square highlight transitions */
+.square-highlight {
+  transition: background-color 0.1s ease;
+}
+
+/* Move notation font */
+.notation {
+  font-family: 'JetBrains Mono', monospace;
+}
