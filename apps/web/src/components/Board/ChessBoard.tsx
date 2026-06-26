@@ -185,8 +185,9 @@ export default function ChessBoard({
       if ((isWhitePiece && !isWhiteTurn) || (!isWhitePiece && isWhiteTurn)) return;
 
       const rect = boardRef.current!.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const scale = totalSize / rect.width;
+      const x = (e.clientX - rect.left) * scale;
+      const y = (e.clientY - rect.top) * scale;
 
       setDragging({ piece, from: square, x, y });
       setInternalSelectedSquare(square);
@@ -197,26 +198,28 @@ export default function ChessBoard({
         boardRef.current?.setPointerCapture(e.pointerId);
       } catch {}
     },
-    [interactive, pieces, chess]
+    [interactive, pieces, chess, totalSize]
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (!dragging) return;
       const rect = boardRef.current!.getBoundingClientRect();
+      const scale = totalSize / rect.width;
       setDragging((d) =>
-        d ? { ...d, x: e.clientX - rect.left, y: e.clientY - rect.top } : null
+        d ? { ...d, x: (e.clientX - rect.left) * scale, y: (e.clientY - rect.top) * scale } : null
       );
     },
-    [dragging]
+    [dragging, totalSize]
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
       if (!dragging) return;
       const rect = boardRef.current!.getBoundingClientRect();
-      const x = e.clientX - rect.left - coordSize;
-      const y = e.clientY - rect.top - coordSize;
+      const scale = totalSize / rect.width;
+      const x = (e.clientX - rect.left) * scale - coordSize;
+      const y = (e.clientY - rect.top) * scale - coordSize;
 
       const col = Math.floor(x / squareSize);
       const row = Math.floor(y / squareSize);
@@ -244,19 +247,19 @@ export default function ChessBoard({
       } catch {}
       setDragging(null);
     },
-    [dragging, squareSize, flipped, legalMoves, onMove, coordSize]
+    [dragging, squareSize, flipped, legalMoves, onMove, coordSize, totalSize]
   );
 
   return (
     <div
-      className={`board-theme-${boardTheme} select-none`}
-      style={{ width: totalSize, height: totalSize }}
+      className={`board-theme-${boardTheme} select-none w-full h-full max-w-full aspect-square`}
+      style={{ maxWidth: totalSize, maxHeight: totalSize }}
     >
       <svg
         ref={boardRef}
         viewBox={`0 0 ${totalSize} ${totalSize}`}
-        width={totalSize}
-        height={totalSize}
+        width="100%"
+        height="100%"
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         style={{ display: 'block' }}

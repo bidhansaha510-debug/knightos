@@ -74,11 +74,10 @@ export default function Game() {
       <div className="absolute top-[-10%] right-[-10%] w-[450px] h-[450px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[450px] h-[450px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="flex gap-6 items-start max-w-5xl relative z-10">
-        {/* Board area */}
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start max-w-5xl relative z-10 w-full">
+         <div className="flex flex-col gap-3 w-full max-w-[580px]">
           {/* Opponent info + clock */}
-          <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3 shadow-md backdrop-blur-md">
+          <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3 shadow-md backdrop-blur-md w-full">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isFlipped ? 'bg-slate-200 text-slate-800' : 'bg-slate-800 text-slate-200 border border-white/5'}`}>
@@ -103,7 +102,7 @@ export default function Game() {
           </div>
 
           {/* Chess Board Wrapper */}
-          <div className="relative p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md">
+          <div className="w-full aspect-square relative p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md">
             <ChessBoard
               fen={gameState?.fen}
               flipped={isBlack || isFlipped}
@@ -119,7 +118,7 @@ export default function Game() {
           </div>
 
           {/* Player info + clock */}
-          <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3 shadow-md backdrop-blur-md">
+          <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3 shadow-md backdrop-blur-md w-full">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isFlipped ? 'bg-slate-800 text-slate-200 border border-white/5' : 'bg-slate-200 text-slate-800'}`}>
@@ -145,7 +144,7 @@ export default function Game() {
         </div>
 
         {/* Side panel */}
-        <div className="w-72 flex flex-col gap-3 self-stretch">
+        <div className="w-full lg:w-72 flex flex-col gap-3 self-stretch max-w-[580px] lg:max-w-none">
           {/* Connection and Game info */}
           <div className="glass-card p-4 space-y-3">
             <div className="flex items-center justify-between pb-2.5 border-b border-white/5">

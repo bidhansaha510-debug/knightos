@@ -148,35 +148,44 @@ export default function Analysis() {
     : [];
 
   return (
-    <div className="min-h-screen bg-base p-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold font-display text-text-primary mb-6">Analysis Board</h1>
+    <div className="min-h-screen bg-transparent p-6 relative overflow-hidden">
+      {/* Background glow blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-[450px] h-[450px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="flex gap-4 items-start">
-          {/* Eval bar */}
-          {isEngineOn && (
-            <EvalBar
-              eval={evalCp}
-              mate={evalMate}
-              height={560}
-            />
-          )}
+      <div className="max-w-6xl mx-auto relative z-10">
+        <h1 className="text-3xl font-black font-display text-text-primary tracking-wide mb-6">
+          Analysis Board
+        </h1>
 
-          {/* Board */}
-          <div className="flex-shrink-0">
-            <ChessBoard
-              fen={chess.fen()}
-              flipped={flipped}
-              interactive={true}
-              onMove={handleMove}
-              lastMove={lastMove}
-              arrows={isEngineOn ? bestMoveArrow : []}
-              size={560}
-            />
+        <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
+          {/* Board & Eval Wrapper */}
+          <div className="flex gap-3 items-stretch w-full max-w-[580px] mx-auto lg:mx-0">
+            {/* Eval bar */}
+            {isEngineOn && (
+              <div className="flex-shrink-0">
+                <EvalBar
+                  eval={evalCp}
+                  mate={evalMate}
+                />
+              </div>
+            )}
+
+            {/* Board Container */}
+            <div className="flex-1 aspect-square relative p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md">
+              <ChessBoard
+                fen={chess.fen()}
+                flipped={flipped}
+                interactive={true}
+                onMove={handleMove}
+                lastMove={lastMove}
+                arrows={isEngineOn ? bestMoveArrow : []}
+                size={560}
+              />
+            </div>
           </div>
 
           {/* Side panel */}
-          <div className="flex-1 space-y-3 min-w-[280px]">
+          <div className="w-full lg:flex-1 space-y-3 max-w-[580px] lg:max-w-none mx-auto lg:mx-0 flex flex-col">
             {/* Engine toggle */}
             <div className="bg-surface border border-border p-3 flex items-center justify-between">
               <div>

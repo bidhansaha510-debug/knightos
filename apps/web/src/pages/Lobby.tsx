@@ -134,7 +134,7 @@ export default function Lobby() {
                   <span className="text-lg filter drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)]">{group.icon}</span>
                   {group.name}
                 </h2>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {group.controls.map((tc) => (
                     <button
                       key={tc}
@@ -160,7 +160,7 @@ export default function Lobby() {
             {/* Custom time control */}
             <div className="glass-card p-5">
               <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">Custom Time Control</h3>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   placeholder="e.g. 10+5"

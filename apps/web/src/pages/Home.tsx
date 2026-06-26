@@ -53,7 +53,7 @@ export default function Home() {
                 <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">
                   Choose Time Control
                 </h2>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {TIME_CONTROLS.map((tc) => (
                     <button
                       key={tc.label}
@@ -152,8 +152,8 @@ export default function Home() {
           </div>
 
           {/* Right: Demo Board */}
-          <div className="flex-shrink-0 animate-fade-in">
-            <div className="relative p-2.5 bg-white/[0.02] border border-white/5 rounded-2xl board-glow backdrop-blur-md">
+          <div className="w-full max-w-[440px] aspect-square mx-auto animate-fade-in">
+            <div className="relative p-2.5 bg-white/[0.02] border border-white/5 rounded-2xl board-glow backdrop-blur-md w-full h-full">
               <ChessBoard
                 fen={demoFen}
                 interactive={false}

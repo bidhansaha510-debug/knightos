@@ -30,7 +30,7 @@ function Sidebar() {
   }
 
   return (
-    <div className="fixed left-0 top-0 h-full w-16 lg:w-52 glass-panel border-r border-border/40 flex flex-col z-50 p-3 justify-between">
+    <div className="hidden md:flex fixed left-0 top-0 h-full w-16 lg:w-52 glass-panel border-r border-border/40 flex-col z-50 p-3 justify-between">
       <div className="flex flex-col gap-4">
         {/* Logo */}
         <Link to="/" className="py-3 px-2 flex items-center gap-2 border-b border-white/5 select-none group">
@@ -115,7 +115,45 @@ export default function App() {
   }, []);
 
   const showSidebar = location.pathname !== '/login' && !location.pathname.startsWith('/game/');
-  const paddingLeft = showSidebar ? 'pl-14 lg:pl-48' : '';
+  const mainClasses = showSidebar ? 'pl-0 md:pl-16 lg:pl-52 pb-24 md:pb-0' : '';
+
+function MobileNavBar() {
+  const location = useLocation();
+
+  if (location.pathname === '/login' || location.pathname.startsWith('/game/')) {
+    return null;
+  }
+
+  const navItems = [
+    { path: '/', label: 'Home', icon: '♚' },
+    { path: '/play', label: 'Play', icon: '⚔' },
+    { path: '/puzzle', label: 'Puzzles', icon: '♟' },
+    { path: '/analysis', label: 'Analysis', icon: '🔍' },
+    { path: '/leaderboard', label: 'Leaders', icon: '🏆' },
+  ];
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 w-full h-16 glass-panel border-t border-border/45 flex justify-around items-center z-50 px-2 pb-safe">
+      {navItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`
+              flex flex-col items-center justify-center flex-1 py-1
+              transition-all duration-200 text-[10px] font-semibold
+              ${isActive ? 'text-blue-400' : 'text-text-muted hover:text-text-primary'}
+            `}
+          >
+            <span className="text-xl leading-none mb-1">{item.icon}</span>
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
   if (isLoading) {
     return (
@@ -133,7 +171,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-base">
       <Sidebar />
-      <main className={paddingLeft}>
+      <main className={mainClasses}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -158,6 +196,7 @@ export default function App() {
           } />
         </Routes>
       </main>
+      <MobileNavBar />
     </div>
   );
 }

@@ -216,11 +216,11 @@ export default function Puzzle() {
           </div>
         </div>
 
-        <div className="flex gap-8 items-start">
-          {/* Board */}
-          <div className="flex-shrink-0 relative">
+        <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start w-full">
+           {/* Board */}
+          <div className="w-full max-w-[480px] aspect-square mx-auto relative">
             <div
-              className="p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md transition-all duration-300"
+              className="p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md transition-all duration-300 w-full h-full"
               style={{
                 boxShadow: boardFlash === 'red'
                   ? '0 0 30px rgba(239, 68, 68, 0.4)'
@@ -240,8 +240,8 @@ export default function Puzzle() {
             </div>
           </div>
 
-          {/* Puzzle info panel */}
-          <div className="flex-1 space-y-4 self-stretch flex flex-col">
+           {/* Puzzle info panel */}
+          <div className="w-full max-w-[480px] lg:max-w-none space-y-4 self-stretch flex flex-col mx-auto lg:mx-0">
             {puzzle && (
               <div className="glass-card p-5 space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/5">

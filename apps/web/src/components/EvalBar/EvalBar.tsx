@@ -37,21 +37,20 @@ export default function EvalBar({ eval: evalScore, mate, height = 400 }: EvalBar
 
   return (
     <div
-      className="relative flex flex-col w-7 overflow-hidden"
-      style={{ height }}
+      className="relative flex flex-col w-6 overflow-hidden rounded-lg border border-white/5 h-full bg-white/[0.02] select-none"
     >
       {/* Black section (top) */}
       <div
-        className="bg-[#333] transition-all duration-500 ease-out flex items-start justify-center"
+        className="bg-[#222536] transition-all duration-500 ease-out flex items-start justify-center"
         style={{ height: `${blackPercent}%` }}
       >
         {evalScore !== null && evalScore < 0 && (
-          <span className="text-white text-[10px] font-mono mt-1 font-bold">
+          <span className="text-white text-[9px] font-mono mt-2.5 font-bold">
             {displayText}
           </span>
         )}
         {mate !== null && mate < 0 && (
-          <span className="text-white text-[10px] font-mono mt-1 font-bold">
+          <span className="text-white text-[9px] font-mono mt-2.5 font-bold">
             {displayText}
           </span>
         )}
@@ -59,16 +58,16 @@ export default function EvalBar({ eval: evalScore, mate, height = 400 }: EvalBar
 
       {/* White section (bottom) */}
       <div
-        className="bg-white transition-all duration-500 ease-out flex items-end justify-center"
+        className="bg-slate-200 transition-all duration-500 ease-out flex items-end justify-center"
         style={{ height: `${whitePercent}%` }}
       >
         {evalScore !== null && evalScore >= 0 && (
-          <span className="text-black text-[10px] font-mono mb-1 font-bold">
+          <span className="text-black text-[9px] font-mono mb-2.5 font-bold">
             {displayText}
           </span>
         )}
         {mate !== null && mate > 0 && (
-          <span className="text-black text-[10px] font-mono mb-1 font-bold">
+          <span className="text-black text-[9px] font-mono mb-2.5 font-bold">
             {displayText}
           </span>
         )}

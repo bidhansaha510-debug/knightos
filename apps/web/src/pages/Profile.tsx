@@ -86,7 +86,7 @@ export default function Profile() {
 
       <div className="max-w-4xl mx-auto space-y-6 relative z-10">
         {/* Header */}
-        <div className="glass-card p-6 flex items-center justify-between shadow-lg">
+        <div className="glass-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
           <div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xl text-white shadow-md shadow-blue-500/10">
@@ -126,7 +126,7 @@ export default function Profile() {
 
         {/* Stats */}
         <div className="glass-card p-5 space-y-4 shadow-lg">
-          <div className="grid grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             <div className="space-y-1">
               <p className="text-2xl font-black font-display text-text-primary">{profile.stats.totalGames}</p>
               <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Total Games</p>
@@ -195,7 +195,7 @@ export default function Profile() {
                       key={game.id}
                       to={`/games/${game.id}`}
                       className={`
-                        flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition-all duration-200 group border-l-2
+                        flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-4 sm:px-5 py-4 hover:bg-white/[0.03] transition-all duration-200 group border-l-2
                         ${won ? 'border-accent-green/40' : lost ? 'border-accent-red/40' : 'border-accent-amber/40'}
                       `}
                     >
@@ -205,7 +205,7 @@ export default function Profile() {
                           vs <strong className="font-bold group-hover:text-blue-400 transition-colors">{opponent.username}</strong>
                         </span>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
                         <span className="text-text-muted font-mono text-xs bg-white/[0.03] px-2.5 py-1 rounded-lg border border-white/5">{game.timeControl}</span>
                         <span className={`font-bold text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full border
                           ${won ? 'bg-emerald-500/10 border-emerald-500/20 text-accent-green' : lost ? 'bg-red-500/10 border-red-500/20 text-accent-red' : 'bg-amber-500/10 border-amber-500/20 text-accent-amber'}
