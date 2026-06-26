@@ -16,7 +16,7 @@ function formatTime(ms: number): string {
   const deciseconds = Math.floor((ms % 1000) / 100);
 
   if (totalSeconds < 20) {
-    return `${minutes}:${seconds.toString().padStart(2, '0')}.${deciseconds}`;
+    return `${seconds}.${deciseconds}`;
   }
 
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -67,24 +67,39 @@ export default function GameClock({
   }, [isActive, isPlayerTurn, onTimeout]);
 
   const totalSeconds = Math.floor(displayTime / 1000);
-  const isLow = totalSeconds < 10;
-  const isCritical = totalSeconds < 5;
+  const isWarning = totalSeconds <= 30 && totalSeconds > 10;
+  const isCritical = totalSeconds <= 10;
+  const isFlagged = displayTime <= 0;
+
+  let color = 'var(--c-text)';
+  let weight = 'var(--weight-normal)';
+
+  if (isFlagged || isCritical) {
+    color = 'var(--c-loss)';
+    weight = 'var(--weight-bold)';
+  } else if (isWarning) {
+    color = 'var(--c-warning)';
+    weight = 'var(--weight-medium)';
+  }
+
+  // Inactive clock: dim the text
+  const opacity = (isPlayerTurn && isActive) ? 1 : 0.4;
 
   return (
-    <div
-      className={`
-        font-mono text-xl font-bold px-4.5 py-2 rounded-xl min-w-[110px] text-center
-        transition-all duration-300 border backdrop-blur-md select-none
-        ${isPlayerTurn && isActive
-          ? isLow
-            ? 'bg-red-500/15 border-red-500/30 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)]'
-            : 'bg-blue-500/15 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-          : 'bg-white/[0.02] border-white/5 text-text-muted'
-        }
-        ${isCritical && isPlayerTurn && isActive ? 'clock-critical' : ''}
-      `}
+    <span
+      style={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: 'var(--text-xl)',
+        fontWeight: weight,
+        color,
+        opacity,
+        minWidth: 80,
+        textAlign: 'right',
+        display: 'inline-block',
+        transition: `color var(--dur-base) var(--ease-out)`,
+      }}
     >
       {formatTime(displayTime)}
-    </div>
+    </span>
   );
 }

@@ -33,30 +33,63 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-base flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Decorative gradient glowing blobs in background */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-blue/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-purple/10 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="w-full max-w-md bg-surface/60 border border-border/80 backdrop-blur-lg rounded-2xl p-8 shadow-2xl relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold font-display text-text-primary tracking-tight">
-            Knight<span className="text-accent-blue">OS</span>
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--c-base)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 'var(--space-4)',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: 380,
+        background: 'var(--c-surface)',
+        border: '1px solid var(--c-border)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-6)',
+      }}>
+        <div style={{ marginBottom: 'var(--space-5)' }}>
+          <h1 style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--text-lg)',
+            fontWeight: 'var(--weight-bold)',
+            color: 'var(--c-text)',
+            marginBottom: 'var(--space-2)',
+          }}>
+            KnightOS
           </h1>
-          <p className="text-text-muted text-sm mt-2 font-medium">
-            {isRegister ? 'Create your new account' : 'Sign in to your account'}
+          <p style={{
+            color: 'var(--c-text-2)',
+            fontSize: 'var(--text-sm)',
+          }}>
+            {isRegister ? 'Create your account' : 'Sign in to your account'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-accent-red/15 border border-accent-red/30 px-4 py-3 rounded-lg text-accent-red text-sm font-medium">
+            <div style={{
+              background: 'transparent',
+              border: '1px solid var(--c-loss)',
+              borderRadius: 'var(--radius-md)',
+              padding: '10px var(--space-4)',
+              marginBottom: 'var(--space-4)',
+              color: 'var(--c-loss)',
+              fontSize: 'var(--text-sm)',
+            }}>
               {error}
             </div>
           )}
 
-          <div>
-            <label htmlFor="login-username" className="block text-text-muted text-xs font-bold mb-1.5 uppercase tracking-wider">
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label htmlFor="login-username" style={{
+              display: 'block',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 'var(--weight-medium)',
+              color: 'var(--c-text-2)',
+              marginBottom: 'var(--space-1)',
+            }}>
               Username
             </label>
             <input
@@ -64,8 +97,7 @@ export default function Login() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-base/50 border border-border text-text-primary px-3 py-2.5
-                       focus:border-accent-blue transition-colors rounded-lg font-medium"
+              className="input"
               placeholder="Enter username"
               required
               minLength={3}
@@ -75,8 +107,14 @@ export default function Login() {
           </div>
 
           {isRegister && (
-            <div className="animate-slide-up">
-              <label htmlFor="login-email" className="block text-text-muted text-xs font-bold mb-1.5 uppercase tracking-wider">
+            <div style={{ marginBottom: 'var(--space-4)' }}>
+              <label htmlFor="login-email" style={{
+                display: 'block',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 'var(--weight-medium)',
+                color: 'var(--c-text-2)',
+                marginBottom: 'var(--space-1)',
+              }}>
                 Email
               </label>
               <input
@@ -84,17 +122,22 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-base/50 border border-border text-text-primary px-3 py-2.5
-                         focus:border-accent-blue transition-colors rounded-lg font-medium"
-                placeholder="Enter email address"
+                className="input"
+                placeholder="Enter email"
                 required={isRegister}
                 autoComplete="email"
               />
             </div>
           )}
 
-          <div>
-            <label htmlFor="login-password" className="block text-text-muted text-xs font-bold mb-1.5 uppercase tracking-wider">
+          <div style={{ marginBottom: 'var(--space-5)' }}>
+            <label htmlFor="login-password" style={{
+              display: 'block',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 'var(--weight-medium)',
+              color: 'var(--c-text-2)',
+              marginBottom: 'var(--space-1)',
+            }}>
               Password
             </label>
             <input
@@ -102,8 +145,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-base/50 border border-border text-text-primary px-3 py-2.5
-                       focus:border-accent-blue transition-colors rounded-lg font-medium"
+              className="input"
               placeholder="Enter password"
               required
               minLength={6}
@@ -114,33 +156,45 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-accent-blue text-white py-3 font-semibold rounded-lg shadow-lg shadow-accent-blue/20
-                     hover:bg-blue-600 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-50"
+            className="btn-primary"
+            style={{ width: '100%' }}
           >
-            {isLoading ? 'Processing...' : isRegister ? 'Create Account' : 'Sign In'}
+            {isLoading ? 'Processing…' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div style={{ marginTop: 'var(--space-5)', textAlign: 'center' }}>
           <button
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError('');
+            onClick={() => { setIsRegister(!isRegister); setError(''); }}
+            style={{
+              color: 'var(--c-accent)',
+              fontSize: 'var(--text-sm)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
             }}
-            className="text-accent-blue text-sm font-semibold hover:text-blue-400 transition-colors"
           >
-            {isRegister
-              ? 'Already have an account? Sign in'
-              : "Don't have an account? Register"}
+            {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
           </button>
         </div>
 
-        <div className="mt-8 text-center pt-4 border-t border-border/40">
+        <div style={{
+          marginTop: 'var(--space-5)',
+          paddingTop: 'var(--space-4)',
+          borderTop: '1px solid var(--c-border)',
+          textAlign: 'center',
+        }}>
           <button
             onClick={() => navigate('/')}
-            className="text-text-muted text-xs hover:text-text-primary transition-colors flex items-center justify-center gap-1.5 mx-auto font-medium"
+            style={{
+              color: 'var(--c-text-2)',
+              fontSize: 'var(--text-xs)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
           >
-            <span>←</span> Back to home
+            ← Back to home
           </button>
         </div>
       </div>

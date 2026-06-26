@@ -18,14 +18,9 @@ export default function Analysis() {
 
   const { isReady, isAnalyzing, evals, bestMove, depth, analyze, stop } = useStockfish();
 
-  // Current eval for the eval bar
   const currentEval = evals.length > 0 ? evals[0] : null;
   const evalCp = currentEval?.score.type === 'cp' ? currentEval.score.value : null;
   const evalMate = currentEval?.score.type === 'mate' ? currentEval.score.value : null;
-
-  // Auto-analyze on position change
-  const currentFen = chess.fen();
-  const prevFen = useMemo(() => currentFen, [currentFen]);
 
   const toggleEngine = useCallback(() => {
     if (isEngineOn) {
@@ -55,14 +50,11 @@ export default function Analysis() {
           fen: newChess.fen(),
         };
 
-        // Truncate moves after current index and add new move
         const newMoves = [...moves.slice(0, currentMoveIndex + 1), newMove];
         setMoves(newMoves);
         setCurrentMoveIndex(newMoves.length - 1);
 
-        if (isEngineOn && isReady) {
-          analyze(newChess.fen());
-        }
+        if (isEngineOn && isReady) analyze(newChess.fen());
 
         return true;
       } catch {
@@ -75,7 +67,6 @@ export default function Analysis() {
   const goToMove = useCallback(
     (index: number) => {
       if (index < 0) {
-        // Go to initial position
         const initial = moves.length > 0 ? new Chess() : chess;
         setChess(new Chess(initial.fen()));
         setCurrentMoveIndex(-1);
@@ -142,153 +133,161 @@ export default function Analysis() {
     }
   }, [inputPgn, isEngineOn, isReady, analyze]);
 
-  // Best move arrow
-  const bestMoveArrow = bestMove && bestMove.length >= 4
-    ? [{ from: bestMove.slice(0, 2), to: bestMove.slice(2, 4), color: 'rgba(34, 197, 94, 0.7)' }]
-    : [];
-
   return (
-    <div className="min-h-screen bg-transparent p-6 relative overflow-hidden">
-      {/* Background glow blobs */}
-      <div className="absolute top-[-10%] right-[-10%] w-[450px] h-[450px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+    <div style={{ display: 'flex', height: 'calc(100vh - 48px)', background: 'var(--c-base)' }}>
+      {/* Eval bar */}
+      {isEngineOn && (
+        <EvalBar eval={evalCp} mate={evalMate} />
+      )}
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        <h1 className="text-3xl font-black font-display text-text-primary tracking-wide mb-6">
-          Analysis Board
-        </h1>
+      {/* Board */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'var(--space-4)',
+        minWidth: 0,
+      }}>
+        <div style={{ width: '100%', maxWidth: 600, aspectRatio: '1' }}>
+          <ChessBoard
+            fen={chess.fen()}
+            flipped={flipped}
+            interactive={true}
+            onMove={handleMove}
+            lastMove={lastMove}
+            size={600}
+          />
+        </div>
+      </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
-          {/* Board & Eval Wrapper */}
-          <div className="flex gap-3 items-stretch w-full max-w-[580px] mx-auto lg:mx-0">
-            {/* Eval bar */}
-            {isEngineOn && (
-              <div className="flex-shrink-0">
-                <EvalBar
-                  eval={evalCp}
-                  mate={evalMate}
-                />
-              </div>
+      {/* Sidebar */}
+      <div style={{
+        width: 300,
+        background: 'var(--c-surface)',
+        borderLeft: '1px solid var(--c-border)',
+        display: 'flex',
+        flexDirection: 'column',
+        flexShrink: 0,
+        overflow: 'hidden',
+      }}>
+        {/* Engine toggle */}
+        <div style={{
+          padding: 'var(--space-3) var(--space-4)',
+          borderBottom: '1px solid var(--c-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)' }}>
+              Stockfish
+            </span>
+            {isAnalyzing && (
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', marginLeft: 'var(--space-2)' }}>
+                d{depth}
+              </span>
             )}
-
-            {/* Board Container */}
-            <div className="flex-1 aspect-square relative p-2.5 bg-white/[0.02] border border-white/5 rounded-3xl board-glow backdrop-blur-md">
-              <ChessBoard
-                fen={chess.fen()}
-                flipped={flipped}
-                interactive={true}
-                onMove={handleMove}
-                lastMove={lastMove}
-                arrows={isEngineOn ? bestMoveArrow : []}
-                size={560}
-              />
-            </div>
           </div>
+          <button
+            onClick={toggleEngine}
+            disabled={!isReady}
+            className={isEngineOn ? 'btn-primary' : 'btn-secondary'}
+            style={{ padding: '4px var(--space-3)', fontSize: 'var(--text-xs)' }}
+          >
+            {isEngineOn ? 'ON' : 'OFF'}
+          </button>
+        </div>
 
-          {/* Side panel */}
-          <div className="w-full lg:flex-1 space-y-3 max-w-[580px] lg:max-w-none mx-auto lg:mx-0 flex flex-col">
-            {/* Engine toggle */}
-            <div className="bg-surface border border-border p-3 flex items-center justify-between">
-              <div>
-                <span className="text-text-primary text-sm font-semibold">Stockfish 16</span>
-                {isAnalyzing && (
-                  <span className="text-text-muted text-xs ml-2">Depth {depth}</span>
-                )}
+        {/* Engine lines */}
+        {isEngineOn && evals.length > 0 && (
+          <div style={{
+            padding: 'var(--space-2) var(--space-4)',
+            borderBottom: '1px solid var(--c-border)',
+          }}>
+            {evals.map((ev) => (
+              <div key={ev.multipv} style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 'var(--space-2)',
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-mono)',
+                marginBottom: 2,
+              }}>
+                <span style={{
+                  minWidth: 40,
+                  textAlign: 'right',
+                  fontWeight: 'var(--weight-bold)',
+                  color: ev.score.type === 'mate'
+                    ? (ev.score.value > 0 ? 'var(--c-win)' : 'var(--c-loss)')
+                    : ev.score.value > 50 ? 'var(--c-win)'
+                    : ev.score.value < -50 ? 'var(--c-loss)'
+                    : 'var(--c-text-2)',
+                }}>
+                  {ev.score.type === 'mate'
+                    ? `M${Math.abs(ev.score.value)}`
+                    : (ev.score.value >= 0 ? '+' : '') + (ev.score.value / 100).toFixed(1)}
+                </span>
+                <span style={{ color: 'var(--c-text-2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {ev.pv.slice(0, 8).join(' ')}
+                </span>
               </div>
-              <button
-                onClick={toggleEngine}
-                disabled={!isReady}
-                className={`
-                  px-3 py-1 text-sm font-semibold transition-colors
-                  ${isEngineOn
-                    ? 'bg-accent-green/20 text-accent-green border border-accent-green/30'
-                    : 'bg-surface border border-border text-text-muted hover:text-text-primary'
-                  }
-                `}
-              >
-                {isEngineOn ? 'ON' : 'OFF'}
-              </button>
-            </div>
+            ))}
+          </div>
+        )}
 
-            {/* Engine lines */}
-            {isEngineOn && evals.length > 0 && (
-              <div className="bg-surface border border-border p-3 space-y-1">
-                {evals.map((ev) => (
-                  <div key={ev.multipv} className="flex items-start gap-2 text-xs">
-                    <span className={`
-                      font-mono font-bold min-w-[48px] text-right
-                      ${ev.score.type === 'mate'
-                        ? ev.score.value > 0 ? 'text-accent-green' : 'text-accent-red'
-                        : ev.score.value > 50 ? 'text-accent-green'
-                        : ev.score.value < -50 ? 'text-accent-red'
-                        : 'text-text-muted'
-                      }
-                    `}>
-                      {ev.score.type === 'mate'
-                        ? `M${Math.abs(ev.score.value)}`
-                        : (ev.score.value >= 0 ? '+' : '') + (ev.score.value / 100).toFixed(1)
-                      }
-                    </span>
-                    <span className="text-text-muted font-mono truncate">
-                      {ev.pv.slice(0, 8).join(' ')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Move list */}
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <MoveList
+            moves={moves}
+            currentMoveIndex={currentMoveIndex}
+            onMoveClick={goToMove}
+          />
+        </div>
 
-            {/* Move list */}
-            <div className="bg-surface border border-border min-h-[200px] max-h-[300px]">
-              <MoveList
-                moves={moves}
-                currentMoveIndex={currentMoveIndex}
-                onMoveClick={goToMove}
-              />
-            </div>
+        {/* Navigation */}
+        <div style={{
+          display: 'flex',
+          borderTop: '1px solid var(--c-border)',
+        }}>
+          <button onClick={goFirst} className="btn-ghost" style={{ flex: 1, borderRadius: 0 }}>⟨⟨</button>
+          <button onClick={goBack} className="btn-ghost" style={{ flex: 1, borderRadius: 0 }}>⟨</button>
+          <button onClick={goForward} className="btn-ghost" style={{ flex: 1, borderRadius: 0 }}>⟩</button>
+          <button onClick={goLast} className="btn-ghost" style={{ flex: 1, borderRadius: 0 }}>⟩⟩</button>
+          <button onClick={() => setFlipped((f) => !f)} className="btn-ghost" style={{ borderRadius: 0 }}>⟳</button>
+        </div>
 
-            {/* Navigation buttons */}
-            <div className="flex gap-1">
-              <button onClick={goFirst} className="flex-1 bg-surface border border-border py-2 text-text-muted hover:text-text-primary hover:bg-elevated transition-colors text-sm">⟨⟨</button>
-              <button onClick={goBack} className="flex-1 bg-surface border border-border py-2 text-text-muted hover:text-text-primary hover:bg-elevated transition-colors text-sm">⟨</button>
-              <button onClick={goForward} className="flex-1 bg-surface border border-border py-2 text-text-muted hover:text-text-primary hover:bg-elevated transition-colors text-sm">⟩</button>
-              <button onClick={goLast} className="flex-1 bg-surface border border-border py-2 text-text-muted hover:text-text-primary hover:bg-elevated transition-colors text-sm">⟩⟩</button>
-              <button onClick={() => setFlipped((f) => !f)} className="bg-surface border border-border px-3 py-2 text-text-muted hover:text-text-primary hover:bg-elevated transition-colors text-sm">⟳</button>
-            </div>
-
-            {/* FEN / PGN input */}
-            <div className="space-y-2">
-              <div className="flex gap-1">
-                <input
-                  type="text"
-                  placeholder="Paste FEN..."
-                  value={inputFen}
-                  onChange={(e) => setInputFen(e.target.value)}
-                  className="flex-1 bg-base border border-border text-text-primary px-2 py-1.5 font-mono text-xs"
-                />
-                <button
-                  onClick={loadFen}
-                  className="bg-surface border border-border px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:bg-elevated transition-colors"
-                >
-                  Load
-                </button>
-              </div>
-              <div className="flex gap-1">
-                <textarea
-                  placeholder="Paste PGN..."
-                  value={inputPgn}
-                  onChange={(e) => setInputPgn(e.target.value)}
-                  className="flex-1 bg-base border border-border text-text-primary px-2 py-1.5 font-mono text-xs resize-none h-16"
-                />
-                <button
-                  onClick={loadPgn}
-                  className="bg-surface border border-border px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:bg-elevated transition-colors"
-                >
-                  Load
-                </button>
-              </div>
-              <div className="text-xs text-text-muted font-mono truncate px-1">
-                {chess.fen()}
-              </div>
-            </div>
+        {/* FEN/PGN input */}
+        <div style={{
+          padding: 'var(--space-3) var(--space-4)',
+          borderTop: '1px solid var(--c-border)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-2)',
+        }}>
+          <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+            <input
+              type="text"
+              placeholder="Paste FEN…"
+              value={inputFen}
+              onChange={(e) => setInputFen(e.target.value)}
+              className="input"
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', flex: 1, padding: '6px var(--space-2)' }}
+            />
+            <button onClick={loadFen} className="btn-ghost" style={{ fontSize: 'var(--text-xs)' }}>Load</button>
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+            <textarea
+              placeholder="Paste PGN…"
+              value={inputPgn}
+              onChange={(e) => setInputPgn(e.target.value)}
+              className="input"
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', flex: 1, padding: '6px var(--space-2)', resize: 'none', height: 48 }}
+            />
+            <button onClick={loadPgn} className="btn-ghost" style={{ fontSize: 'var(--text-xs)' }}>Load</button>
+          </div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--c-text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {chess.fen()}
           </div>
         </div>
       </div>

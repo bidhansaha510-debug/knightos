@@ -11,167 +11,169 @@ import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import Settings from './pages/Settings';
 
-function Sidebar() {
+const NAV_ITEMS = [
+  { path: '/', label: 'Home' },
+  { path: '/play', label: 'Play' },
+  { path: '/puzzle', label: 'Puzzles' },
+  { path: '/analysis', label: 'Analysis' },
+  { path: '/leaderboard', label: 'Leaderboard' },
+];
+
+function Header() {
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
   const location = useLocation();
 
-  const navItems = [
-    { path: '/', label: 'Home', icon: '♚' },
-    { path: '/play', label: 'Play', icon: '⚔' },
-    { path: '/puzzle', label: 'Puzzles', icon: '♟' },
-    { path: '/analysis', label: 'Analysis', icon: '🔍' },
-    { path: '/leaderboard', label: 'Leaders', icon: '🏆' },
-  ];
-
-  // Don't show sidebar on login page or game page
-  if (location.pathname === '/login' || location.pathname.startsWith('/game/')) {
-    return null;
-  }
+  // Hide header on login page
+  if (location.pathname === '/login') return null;
 
   return (
-    <div className="hidden md:flex fixed left-0 top-0 h-full w-16 lg:w-52 glass-panel border-r border-border/40 flex-col z-50 p-3 justify-between">
-      <div className="flex flex-col gap-4">
-        {/* Logo */}
-        <Link to="/" className="py-3 px-2 flex items-center gap-2 border-b border-white/5 select-none group">
-          <span className="text-xl font-bold font-display bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent hidden lg:block tracking-wide group-hover:brightness-110 transition-all duration-300">
-            Knight<span className="font-extrabold text-blue-500">OS</span>
-          </span>
-          <span className="text-2xl font-black font-display bg-gradient-to-br from-blue-400 to-indigo-500 bg-clip-text text-transparent lg:hidden text-center w-full transform group-hover:scale-110 transition-transform duration-300">K</span>
-        </Link>
+    <header
+      style={{
+        height: 48,
+        background: 'var(--c-surface)',
+        borderBottom: '1px solid var(--c-border)',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 var(--space-4)',
+        gap: 'var(--space-5)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+      }}
+    >
+      {/* Logo */}
+      <Link
+        to="/"
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: 'var(--text-md)',
+          fontWeight: 'var(--weight-bold)',
+          color: 'var(--c-text)',
+          textDecoration: 'none',
+          marginRight: 'var(--space-4)',
+          flexShrink: 0,
+        }}
+      >
+        KnightOS
+      </Link>
 
-        {/* Nav items */}
-        <nav className="flex flex-col gap-1.5">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl
-                  transition-all duration-200 text-sm font-medium
-                  ${isActive
-                    ? 'bg-accent-blue/15 text-blue-400 shadow-md shadow-accent-blue/5 border border-accent-blue/20'
-                    : 'text-text-muted hover:text-text-primary hover:bg-white/5 border border-transparent'
-                  }
-                `}
-              >
-                <span className={`text-lg w-5 text-center ${isActive ? 'text-blue-400' : 'text-text-muted group-hover:text-text-primary'}`}>{item.icon}</span>
-                <span className="hidden lg:block">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      {/* Nav links */}
+      <nav style={{ display: 'flex', gap: 'var(--space-1)', flex: 1 }}>
+        {NAV_ITEMS.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 'var(--weight-medium)',
+                color: isActive ? 'var(--c-text)' : 'var(--c-text-2)',
+                textDecoration: 'none',
+                padding: '0 var(--space-3)',
+                height: 48,
+                display: 'flex',
+                alignItems: 'center',
+                borderBottom: isActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+                transition: `color var(--dur-fast) var(--ease-out)`,
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--c-text)';
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--c-text-2)';
+              }}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
 
       {/* User section */}
-      <div className="border-t border-white/5 pt-3 flex flex-col gap-1">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
         {user ? (
           <>
             <Link
               to={`/user/${user.username}`}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all duration-200 border border-transparent"
+              style={{
+                fontSize: 'var(--text-sm)',
+                fontWeight: 'var(--weight-medium)',
+                color: 'var(--c-text)',
+                textDecoration: 'none',
+              }}
             >
-              <span className="w-5 text-center text-lg">👤</span>
-              <span className="hidden lg:block text-sm font-semibold truncate">{user.username}</span>
+              {user.username}
             </Link>
             <Link
               to="/settings"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all duration-200 border border-transparent"
+              className="btn-ghost"
+              style={{ fontSize: 'var(--text-sm)' }}
             >
-              <span className="w-5 text-center text-lg">⚙</span>
-              <span className="hidden lg:block text-sm">Settings</span>
+              ⚙
             </Link>
             <button
               onClick={() => logout()}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition-all duration-200 border border-transparent w-full text-left"
+              className="btn-ghost"
+              style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}
             >
-              <span className="w-5 text-center text-lg">⏻</span>
-              <span className="hidden lg:block text-sm">Logout</span>
+              Sign out
             </button>
           </>
         ) : (
-          <Link
-            to="/login"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 hover:bg-blue-400/10 transition-all duration-200 border border-transparent"
-          >
-            <span className="w-5 text-center text-lg">→</span>
-            <span className="hidden lg:block text-sm font-bold">Sign In</span>
+          <Link to="/login" className="btn-primary" style={{ padding: '6px var(--space-4)' }}>
+            Sign In
           </Link>
         )}
       </div>
-    </div>
+    </header>
   );
 }
 
 export default function App() {
   const fetchMe = useUserStore((s) => s.fetchMe);
   const isLoading = useUserStore((s) => s.isLoading);
-  const location = useLocation();
 
   useEffect(() => {
     fetchMe();
   }, []);
 
-  const showSidebar = location.pathname !== '/login' && !location.pathname.startsWith('/game/');
-  const mainClasses = showSidebar ? 'pl-0 md:pl-16 lg:pl-52 pb-24 md:pb-0' : '';
-
-function MobileNavBar() {
-  const location = useLocation();
-
-  if (location.pathname === '/login' || location.pathname.startsWith('/game/')) {
-    return null;
-  }
-
-  const navItems = [
-    { path: '/', label: 'Home', icon: '♚' },
-    { path: '/play', label: 'Play', icon: '⚔' },
-    { path: '/puzzle', label: 'Puzzles', icon: '♟' },
-    { path: '/analysis', label: 'Analysis', icon: '🔍' },
-    { path: '/leaderboard', label: 'Leaders', icon: '🏆' },
-  ];
-
-  return (
-    <div className="md:hidden fixed bottom-0 left-0 w-full h-16 glass-panel border-t border-border/45 flex justify-around items-center z-50 px-2 pb-safe">
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.path;
-        return (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`
-              flex flex-col items-center justify-center flex-1 py-1
-              transition-all duration-200 text-[10px] font-semibold
-              ${isActive ? 'text-blue-400' : 'text-text-muted hover:text-text-primary'}
-            `}
-          >
-            <span className="text-xl leading-none mb-1">{item.icon}</span>
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-base flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold font-display text-text-primary mb-2">
-            Knight<span className="text-accent-blue">OS</span>
-          </h1>
-          <p className="text-text-muted text-sm animate-pulse">Loading...</p>
+      <div style={{
+        minHeight: '100vh',
+        background: 'var(--c-base)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--text-md)',
+            fontWeight: 'var(--weight-bold)',
+            color: 'var(--c-text)',
+          }}>
+            KnightOS
+          </p>
+          <p style={{
+            color: 'var(--c-text-2)',
+            fontSize: 'var(--text-sm)',
+            marginTop: 'var(--space-2)',
+          }}>
+            Loading…
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-base">
-      <Sidebar />
-      <main className={mainClasses}>
+    <div style={{ minHeight: '100vh', background: 'var(--c-base)' }}>
+      <Header />
+      <main>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -182,13 +184,26 @@ function MobileNavBar() {
           <Route path="/user/:username" element={<Profile />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/games/:id" element={<Analysis />} /> {/* Game review reuses analysis */}
+          <Route path="/games/:id" element={<Analysis />} />
           <Route path="*" element={
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
-                <p className="text-4xl mb-2">♞</p>
-                <p className="text-text-muted">Page not found</p>
-                <Link to="/" className="text-accent-blue text-sm hover:underline mt-2 inline-block">
+            <div style={{
+              minHeight: 'calc(100vh - 48px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: 'var(--text-lg)', color: 'var(--c-text-2)' }}>Page not found</p>
+                <Link
+                  to="/"
+                  style={{
+                    color: 'var(--c-accent)',
+                    fontSize: 'var(--text-sm)',
+                    textDecoration: 'none',
+                    marginTop: 'var(--space-2)',
+                    display: 'inline-block',
+                  }}
+                >
                   Go home
                 </Link>
               </div>
@@ -196,7 +211,6 @@ function MobileNavBar() {
           } />
         </Routes>
       </main>
-      <MobileNavBar />
     </div>
   );
 }

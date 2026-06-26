@@ -14,11 +14,11 @@ interface ProfileData {
 }
 
 const RATING_CATEGORIES = [
-  { key: 'bullet', label: 'Bullet', icon: '⚡' },
-  { key: 'blitz', label: 'Blitz', icon: '🔥' },
-  { key: 'rapid', label: 'Rapid', icon: '⏱' },
-  { key: 'classical', label: 'Classical', icon: '♚' },
-  { key: 'puzzle', label: 'Puzzle', icon: '🧩' },
+  { key: 'bullet', label: 'Bullet' },
+  { key: 'blitz', label: 'Blitz' },
+  { key: 'rapid', label: 'Rapid' },
+  { key: 'classical', label: 'Classical' },
+  { key: 'puzzle', label: 'Puzzle' },
 ];
 
 export default function Profile() {
@@ -36,14 +36,10 @@ export default function Profile() {
     setIsLoading(true);
     fetch(`${API_BASE}/users/${username}`)
       .then((r) => r.json())
-      .then((data) => {
-        setProfile(data);
-        setIsLoading(false);
-      })
+      .then((data) => { setProfile(data); setIsLoading(false); })
       .catch(() => setIsLoading(false));
 
-    // Fetch recent games
-    fetch(`${API_BASE}/users/${username}/games?limit=10`)
+    fetch(`${API_BASE}/users/${username}/games?limit=20`)
       .then((r) => r.json())
       .then((data) => setGames(data.games || []))
       .catch(() => {});
@@ -61,16 +57,16 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-base flex items-center justify-center">
-        <p className="text-text-muted animate-pulse">Loading profile...</p>
+      <div style={{ padding: 'var(--space-7) var(--space-4)' }}>
+        <p style={{ color: 'var(--c-text-2)', fontSize: 'var(--text-sm)' }}>Loading…</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-base flex items-center justify-center">
-        <p className="text-text-muted">User not found</p>
+      <div style={{ padding: 'var(--space-7) var(--space-4)' }}>
+        <p style={{ color: 'var(--c-text-2)' }}>User not found</p>
       </div>
     );
   }
@@ -80,145 +76,192 @@ export default function Profile() {
     : '0';
 
   return (
-    <div className="min-h-screen bg-transparent p-6 relative overflow-hidden">
-      {/* Background glow blobs */}
-      <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-        {/* Header */}
-        <div className="glass-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xl text-white shadow-md shadow-blue-500/10">
-                {profile.username[0].toUpperCase()}
-              </div>
-              <div>
-                <h1 className="text-2xl font-black font-display text-text-primary">{profile.username}</h1>
-                <p className="text-text-muted text-xs font-light mt-0.5">
-                  Member since {new Date(profile.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4 mt-4 text-xs font-medium">
-              <span className="text-text-muted">
-                <strong className="text-text-primary font-bold">{profile.followerCount}</strong> followers
-              </span>
-              <span className="text-text-muted">
-                <strong className="text-text-primary font-bold">{profile.followingCount}</strong> following
-              </span>
-            </div>
-          </div>
-          {user && user.username !== username && (
-            <button
-              onClick={toggleFollow}
-              className={`
-                px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200
-                ${isFollowing
-                  ? 'bg-white/[0.04] border border-white/10 text-text-primary hover:bg-white/[0.08]'
-                  : 'btn-primary'
-                }
-              `}
-            >
-              {isFollowing ? 'Following' : 'Follow'}
-            </button>
-          )}
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--space-5) var(--space-4)' }}>
+      {/* User header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-4)',
+        marginBottom: 'var(--space-5)',
+        paddingBottom: 'var(--space-4)',
+        borderBottom: '1px solid var(--c-border)',
+      }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: '50%',
+          border: '1px solid var(--c-border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'var(--c-elevated)',
+          fontFamily: 'var(--font-ui)', fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)',
+          color: 'var(--c-text-2)',
+          flexShrink: 0,
+        }}>
+          {profile.username[0].toUpperCase()}
         </div>
-
-        {/* Stats */}
-        <div className="glass-card p-5 space-y-4 shadow-lg">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div className="space-y-1">
-              <p className="text-2xl font-black font-display text-text-primary">{profile.stats.totalGames}</p>
-              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Total Games</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-black font-display text-accent-green">{profile.stats.wins}</p>
-              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Wins</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-black font-display text-accent-red">{profile.stats.losses}</p>
-              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Losses</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-black font-display text-accent-amber">{profile.stats.draws}</p>
-              <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Draws</p>
-            </div>
-          </div>
-          <div className="relative pt-1">
-            <div className="overflow-hidden h-2.5 text-xs flex rounded-full bg-white/[0.05] border border-white/5">
-              <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-green" style={{ width: `${winRate}%` }} />
-              <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-amber" style={{ width: `${profile.stats.totalGames > 0 ? ((profile.stats.draws / profile.stats.totalGames) * 100).toFixed(1) : 0}%` }} />
-              <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-red flex-1" />
-            </div>
-          </div>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
+            {profile.username}
+          </h1>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-3)' }}>
+            Joined {new Date(profile.createdAt).toLocaleDateString()}
+          </p>
         </div>
+        {user && user.username !== username && (
+          <button onClick={toggleFollow} className={isFollowing ? 'btn-secondary' : 'btn-primary'}>
+            {isFollowing ? 'Unfollow' : 'Follow'}
+          </button>
+        )}
+      </div>
 
-        {/* Ratings Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      {/* Stats row */}
+      <div style={{
+        display: 'flex',
+        gap: 'var(--space-6)',
+        marginBottom: 'var(--space-5)',
+      }}>
+        <div>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Games</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>{profile.stats.totalGames}</span>
+        </div>
+        <div>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Wins</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-win)' }}>{profile.stats.wins}</span>
+        </div>
+        <div>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Losses</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-loss)' }}>{profile.stats.losses}</span>
+        </div>
+        <div>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Draws</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-draw)' }}>{profile.stats.draws}</span>
+        </div>
+        <div>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Win Rate</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>{winRate}%</span>
+        </div>
+      </div>
+
+      {/* Ratings */}
+      <div style={{ marginBottom: 'var(--space-5)' }}>
+        <h2 style={{
+          fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text-2)',
+          textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--space-3)',
+        }}>
+          Ratings
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+          gap: 'var(--space-2)',
+        }}>
           {RATING_CATEGORIES.map((cat) => {
-            const r = profile.ratings[cat.key];
+            const r = profile.ratings?.[cat.key];
             return (
-              <div key={cat.key} className="glass-card p-4 text-center hover:border-white/10 transition-colors shadow-md">
-                <span className="text-2xl filter drop-shadow-[0_2px_4px_rgba(255,255,255,0.05)]">{cat.icon}</span>
-                <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider mt-2">{cat.label}</p>
-                <p className="text-2xl font-black font-mono text-text-primary mt-1.5 leading-none">
+              <div key={cat.key} style={{
+                background: 'var(--c-surface)',
+                border: '1px solid var(--c-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: 'var(--space-3) var(--space-4)',
+              }}>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', display: 'block' }}>
+                  {cat.label}
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
                   {r ? Math.round(r.rating) : '—'}
-                </p>
-                {r && r.rd > 100 && (
-                  <p className="text-text-muted text-[9px] font-medium tracking-wide mt-1">±{Math.round(r.rd)} deviation</p>
-                )}
+                </span>
               </div>
             );
           })}
         </div>
+      </div>
 
-        {/* Recent Games */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">Recent Matches</h2>
-          <div className="glass-card overflow-hidden">
-            {games.length === 0 ? (
-              <p className="p-8 text-text-muted text-sm font-light text-center">No games played yet</p>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {games.map((game: any) => {
-                  const isWhite = game.white.id === profile.id;
-                  const opponent = isWhite ? game.black : game.white;
-                  const won =
-                    (isWhite && game.result === '1-0') ||
-                    (!isWhite && game.result === '0-1');
-                  const lost =
-                    (isWhite && game.result === '0-1') ||
-                    (!isWhite && game.result === '1-0');
+      {/* Game history table */}
+      <div>
+        <h2 style={{
+          fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text-2)',
+          textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--space-3)',
+        }}>
+          Recent Games
+        </h2>
+        <div style={{
+          background: 'var(--c-surface)',
+          border: '1px solid var(--c-border)',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+        }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--c-border)' }}>
+                {['Date', 'Opponent', 'Result', 'Time', 'Moves'].map((h) => (
+                  <th key={h} style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--c-text-3)',
+                    textAlign: 'left',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {games.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ padding: 'var(--space-5) var(--space-3)', color: 'var(--c-text-3)', fontSize: 'var(--text-sm)' }}>
+                    No games played yet
+                  </td>
+                </tr>
+              ) : (
+                games.map((game) => {
+                  const isWhite = game.whiteId === profile.id;
+                  const opponent = isWhite ? game.blackUsername : game.whiteUsername;
+                  const resultColor = game.result === '1-0'
+                    ? (isWhite ? 'var(--c-win)' : 'var(--c-loss)')
+                    : game.result === '0-1'
+                    ? (isWhite ? 'var(--c-loss)' : 'var(--c-win)')
+                    : 'var(--c-draw)';
+                  const resultText = game.result === '1-0'
+                    ? (isWhite ? 'Win' : 'Loss')
+                    : game.result === '0-1'
+                    ? (isWhite ? 'Loss' : 'Win')
+                    : 'Draw';
 
                   return (
-                    <Link
+                    <tr
                       key={game.id}
-                      to={`/games/${game.id}`}
-                      className={`
-                        flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-4 sm:px-5 py-4 hover:bg-white/[0.03] transition-all duration-200 group border-l-2
-                        ${won ? 'border-accent-green/40' : lost ? 'border-accent-red/40' : 'border-accent-amber/40'}
-                      `}
+                      style={{
+                        borderBottom: '1px solid var(--c-border)',
+                        cursor: 'pointer',
+                        transition: 'background var(--dur-fast) var(--ease-out)',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--c-elevated)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2.5 h-2.5 rounded-full ${isWhite ? 'bg-slate-200 border border-white/10' : 'bg-slate-800 border border-white/5'}`} />
-                        <span className="text-text-primary text-sm font-medium">
-                          vs <strong className="font-bold group-hover:text-blue-400 transition-colors">{opponent.username}</strong>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-                        <span className="text-text-muted font-mono text-xs bg-white/[0.03] px-2.5 py-1 rounded-lg border border-white/5">{game.timeControl}</span>
-                        <span className={`font-bold text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full border
-                          ${won ? 'bg-emerald-500/10 border-emerald-500/20 text-accent-green' : lost ? 'bg-red-500/10 border-red-500/20 text-accent-red' : 'bg-amber-500/10 border-amber-500/20 text-accent-amber'}
-                        `}>
-                          {won ? 'Victory' : lost ? 'Defeat' : 'Draw'}
-                        </span>
-                      </div>
-                    </Link>
+                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--c-text-2)' }}>
+                        {new Date(game.endedAt || game.createdAt).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-sm)', color: 'var(--c-text)' }}>
+                        <Link to={`/user/${opponent}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                          {opponent || '—'}
+                        </Link>
+                      </td>
+                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: resultColor }}>
+                        {resultText}
+                      </td>
+                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', fontFamily: 'var(--font-mono)' }}>
+                        {game.timeControl || '—'}
+                      </td>
+                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--c-text-3)', fontFamily: 'var(--font-mono)' }}>
+                        {game.moves?.length || '—'}
+                      </td>
+                    </tr>
                   );
-                })}
-              </div>
-            )}
-          </div>
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

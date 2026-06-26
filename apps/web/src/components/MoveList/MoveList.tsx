@@ -17,7 +17,7 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
     }
   }, [currentMoveIndex, moves.length]);
 
-  // Group moves into pairs (1. e4 e5, 2. Nf3 Nc6, ...)
+  // Group moves into pairs
   const movePairs: Array<{ number: number; white: GameMove; black?: GameMove }> = [];
   for (let i = 0; i < moves.length; i += 2) {
     movePairs.push({
@@ -30,55 +30,113 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
   const activeIdx = currentMoveIndex ?? moves.length - 1;
 
   return (
-    <div className="bg-surface flex flex-col h-full">
-      <div className="px-3 py-2 border-b border-border">
-        <h3 className="text-sm font-semibold text-text-primary font-display">Moves</h3>
-      </div>
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-2 notation"
-        style={{ maxHeight: '400px' }}
-      >
-        {movePairs.length === 0 && (
-          <p className="text-text-muted text-xs text-center py-4">No moves yet</p>
-        )}
-        {movePairs.map((pair) => (
-          <div key={pair.number} className="flex items-center text-sm mb-0.5">
-            <span className="text-text-muted w-8 text-right mr-2 text-xs flex-shrink-0">
+    <div
+      ref={scrollRef}
+      style={{
+        overflowY: 'auto',
+        flex: 1,
+      }}
+    >
+      {movePairs.length === 0 && (
+        <p style={{
+          color: 'var(--c-text-3)',
+          fontSize: 'var(--text-sm)',
+          padding: 'var(--space-5) var(--space-4)',
+          textAlign: 'left',
+        }}>
+          No moves yet
+        </p>
+      )}
+      {movePairs.map((pair) => {
+        const whiteIdx = (pair.number - 1) * 2;
+        const blackIdx = whiteIdx + 1;
+        const isWhiteActive = activeIdx === whiteIdx;
+        const isBlackActive = pair.black && activeIdx === blackIdx;
+
+        return (
+          <div
+            key={pair.number}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '32px 1fr 1fr',
+              height: 32,
+              alignItems: 'center',
+              fontSize: 'var(--text-sm)',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            {/* Move number */}
+            <span style={{
+              color: 'var(--c-text-3)',
+              textAlign: 'right',
+              paddingRight: 'var(--space-2)',
+              fontSize: 'var(--text-xs)',
+            }}>
               {pair.number}.
             </span>
+
+            {/* White move */}
             <button
-              ref={activeIdx === (pair.number - 1) * 2 ? activeMoveRef : null}
-              onClick={() => onMoveClick?.((pair.number - 1) * 2)}
-              className={`
-                px-2 py-0.5 mr-1 flex-1 text-left hover:bg-elevated transition-colors
-                ${activeIdx === (pair.number - 1) * 2
-                  ? 'bg-accent-blue/20 text-accent-blue'
-                  : 'text-text-primary'
-                }
-              `}
+              ref={isWhiteActive ? activeMoveRef : null}
+              onClick={() => onMoveClick?.(whiteIdx)}
+              style={{
+                background: isWhiteActive ? 'var(--c-elevated)' : 'transparent',
+                border: 'none',
+                borderLeft: isWhiteActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+                color: 'var(--c-text)',
+                padding: '0 var(--space-2)',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                cursor: onMoveClick ? 'pointer' : 'default',
+                fontFamily: 'inherit',
+                fontSize: 'inherit',
+                transition: 'background-color var(--dur-fast) var(--ease-out)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isWhiteActive) e.currentTarget.style.background = 'var(--c-elevated)';
+              }}
+              onMouseLeave={(e) => {
+                if (!isWhiteActive) e.currentTarget.style.background = 'transparent';
+              }}
             >
               {pair.white.san}
             </button>
-            {pair.black && (
+
+            {/* Black move */}
+            {pair.black ? (
               <button
-                ref={activeIdx === (pair.number - 1) * 2 + 1 ? activeMoveRef : null}
-                onClick={() => onMoveClick?.((pair.number - 1) * 2 + 1)}
-                className={`
-                  px-2 py-0.5 flex-1 text-left hover:bg-elevated transition-colors
-                  ${activeIdx === (pair.number - 1) * 2 + 1
-                    ? 'bg-accent-blue/20 text-accent-blue'
-                    : 'text-text-primary'
-                  }
-                `}
+                ref={isBlackActive ? activeMoveRef : null}
+                onClick={() => onMoveClick?.(blackIdx)}
+                style={{
+                  background: isBlackActive ? 'var(--c-elevated)' : 'transparent',
+                  border: 'none',
+                  borderLeft: isBlackActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+                  color: 'var(--c-text)',
+                  padding: '0 var(--space-2)',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: onMoveClick ? 'pointer' : 'default',
+                  fontFamily: 'inherit',
+                  fontSize: 'inherit',
+                  transition: 'background-color var(--dur-fast) var(--ease-out)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isBlackActive) e.currentTarget.style.background = 'var(--c-elevated)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isBlackActive) e.currentTarget.style.background = 'transparent';
+                }}
               >
                 {pair.black.san}
               </button>
+            ) : (
+              <span />
             )}
-            {!pair.black && <span className="flex-1" />}
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }

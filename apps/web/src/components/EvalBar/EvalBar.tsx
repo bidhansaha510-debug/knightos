@@ -3,26 +3,23 @@ interface EvalBarProps {
   eval: number | null;
   /** Mate score. Positive = white mates in N. Negative = black mates in N. */
   mate: number | null;
-  /** Height of the eval bar in pixels */
-  height?: number;
 }
 
 function evalToPercentage(cp: number): number {
   // Sigmoid-like mapping: eval → visual percentage (0-100)
-  // At 0cp → 50%, at +300cp → ~75%, at +1000cp → ~95%
   return 50 + 50 * (2 / (1 + Math.exp(-0.004 * cp)) - 1);
 }
 
-export default function EvalBar({ eval: evalScore, mate, height = 400 }: EvalBarProps) {
+export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
   let whitePercent = 50;
   let displayText = '';
 
   if (mate !== null) {
     if (mate > 0) {
-      whitePercent = 100;
+      whitePercent = 96; // 4px min for opponent
       displayText = `M${mate}`;
     } else {
-      whitePercent = 0;
+      whitePercent = 4;
       displayText = `M${Math.abs(mate)}`;
     }
   } else if (evalScore !== null) {
@@ -34,23 +31,43 @@ export default function EvalBar({ eval: evalScore, mate, height = 400 }: EvalBar
   }
 
   const blackPercent = 100 - whitePercent;
+  const showInBlack = (evalScore !== null && evalScore < 0) || (mate !== null && mate < 0);
+  const showInWhite = (evalScore !== null && evalScore >= 0) || (mate !== null && mate > 0);
 
   return (
     <div
-      className="relative flex flex-col w-6 overflow-hidden rounded-lg border border-white/5 h-full bg-white/[0.02] select-none"
+      style={{
+        width: 10,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        flexShrink: 0,
+        userSelect: 'none',
+      }}
     >
       {/* Black section (top) */}
       <div
-        className="bg-[#222536] transition-all duration-500 ease-out flex items-start justify-center"
-        style={{ height: `${blackPercent}%` }}
+        style={{
+          background: 'var(--c-elevated)',
+          height: `${blackPercent}%`,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          transition: 'height 350ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+          position: 'relative',
+        }}
       >
-        {evalScore !== null && evalScore < 0 && (
-          <span className="text-white text-[9px] font-mono mt-2.5 font-bold">
-            {displayText}
-          </span>
-        )}
-        {mate !== null && mate < 0 && (
-          <span className="text-white text-[9px] font-mono mt-2.5 font-bold">
+        {showInBlack && (
+          <span style={{
+            color: 'var(--c-text)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '9px',
+            fontWeight: 'var(--weight-medium)',
+            writingMode: 'vertical-lr',
+            textOrientation: 'mixed',
+            paddingTop: 4,
+          }}>
             {displayText}
           </span>
         )}
@@ -58,16 +75,26 @@ export default function EvalBar({ eval: evalScore, mate, height = 400 }: EvalBar
 
       {/* White section (bottom) */}
       <div
-        className="bg-slate-200 transition-all duration-500 ease-out flex items-end justify-center"
-        style={{ height: `${whitePercent}%` }}
+        style={{
+          background: 'var(--c-text)',
+          height: `${whitePercent}%`,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          transition: 'height 350ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+          position: 'relative',
+        }}
       >
-        {evalScore !== null && evalScore >= 0 && (
-          <span className="text-black text-[9px] font-mono mb-2.5 font-bold">
-            {displayText}
-          </span>
-        )}
-        {mate !== null && mate > 0 && (
-          <span className="text-black text-[9px] font-mono mb-2.5 font-bold">
+        {showInWhite && (
+          <span style={{
+            color: 'var(--c-base)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '9px',
+            fontWeight: 'var(--weight-medium)',
+            writingMode: 'vertical-lr',
+            textOrientation: 'mixed',
+            paddingBottom: 4,
+          }}>
             {displayText}
           </span>
         )}
