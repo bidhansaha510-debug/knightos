@@ -79,7 +79,7 @@ export async function authRoutes(app: FastifyInstance) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: '/auth/refresh',
+      path: '/',
       maxAge: 30 * 24 * 60 * 60, // 30 days
     });
 
@@ -120,7 +120,7 @@ export async function authRoutes(app: FastifyInstance) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: '/auth/refresh',
+      path: '/',
       maxAge: 30 * 24 * 60 * 60,
     });
 
@@ -156,7 +156,7 @@ export async function authRoutes(app: FastifyInstance) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        path: '/auth/refresh',
+        path: '/',
         maxAge: 30 * 24 * 60 * 60,
       });
 
@@ -168,7 +168,7 @@ export async function authRoutes(app: FastifyInstance) {
 
   // Logout
   app.post('/auth/logout', async (_request, reply) => {
-    reply.clearCookie('refreshToken', { path: '/auth/refresh' });
+    reply.clearCookie('refreshToken', { path: '/' });
     return reply.send({ ok: true });
   });
 
