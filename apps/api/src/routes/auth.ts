@@ -22,10 +22,13 @@ function generateTokens(userId: string, username: string) {
 }
 
 function cookieOptions() {
+  // In production (HTTPS cross-origin): secure=true, sameSite=none
+  // In local dev (HTTP same-origin via proxy): secure=false, sameSite=lax
+  const isProduction = env.CORS_ORIGIN.startsWith('https://');
   return {
     httpOnly: true,
-    secure: false,       // local dev over HTTP — never set true on localhost
-    sameSite: 'lax' as const,
+    secure: isProduction,
+    sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
     path: '/',
     maxAge: 30 * 24 * 60 * 60, // 30 days in seconds
   };
