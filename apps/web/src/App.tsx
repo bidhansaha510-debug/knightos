@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { useUserStore } from './stores/userStore';
+import { useSettingsStore } from './stores/settingsStore';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Lobby from './pages/Lobby';
@@ -265,11 +266,17 @@ function Header() {
 
 export default function App() {
   const fetchMe = useUserStore((s) => s.fetchMe);
+  const user = useUserStore((s) => s.user);
   const isLoading = useUserStore((s) => s.isLoading);
+  const initSettings = useSettingsStore((s) => s.initSettings);
 
   useEffect(() => {
     fetchMe();
-  }, []);
+  }, [fetchMe]);
+
+  useEffect(() => {
+    initSettings(user?.id);
+  }, [user, initSettings]);
 
   if (isLoading) {
     return (

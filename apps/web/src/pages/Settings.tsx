@@ -1,5 +1,6 @@
 import ChessBoard from '../components/Board/ChessBoard';
 import { useSettingsStore, BoardTheme, PieceSet } from '../stores/settingsStore';
+import { useUserStore } from '../stores/userStore';
 
 const BOARD_THEMES: { key: BoardTheme; label: string; lightColor: string; darkColor: string }[] = [
   { key: 'classic', label: 'Classic', lightColor: '#f0d9b5', darkColor: '#b58863' },
@@ -46,6 +47,9 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
 }
 
 export default function Settings() {
+  const user = useUserStore((s) => s.user);
+  const userId = user?.id || null;
+
   const {
     boardTheme, setBoardTheme,
     pieceSet, setPieceSet,
@@ -72,7 +76,7 @@ export default function Settings() {
           {BOARD_THEMES.map((theme) => (
             <button
               key={theme.key}
-              onClick={() => setBoardTheme(theme.key)}
+              onClick={() => setBoardTheme(theme.key, userId)}
               style={{
                 padding: 'var(--sp-3)',
                 border: `1px solid ${boardTheme === theme.key ? 'var(--c-gold)' : 'var(--c-border)'}`,
@@ -106,7 +110,7 @@ export default function Settings() {
           {PIECE_SETS.map((set) => (
             <button
               key={set.key}
-              onClick={() => setPieceSet(set.key)}
+              onClick={() => setPieceSet(set.key, userId)}
               style={{
                 padding: 'var(--sp-3)',
                 border: `1px solid ${pieceSet === set.key ? 'var(--c-gold)' : 'var(--c-border)'}`,
@@ -136,9 +140,9 @@ export default function Settings() {
         </h2>
 
         {[
-          { label: 'Sound Effects', desc: 'Play sounds on moves and game events', checked: soundEnabled, onChange: () => setSoundEnabled(!soundEnabled) },
-          { label: 'Board Coordinates', desc: 'Show a-h and 1-8 labels', checked: showCoordinates, onChange: () => setShowCoordinates(!showCoordinates) },
-          { label: 'Auto-Flip Board', desc: 'Orient the board to your color', checked: autoFlip, onChange: () => setAutoFlip(!autoFlip) },
+          { label: 'Sound Effects', desc: 'Play sounds on moves and game events', checked: soundEnabled, onChange: () => setSoundEnabled(!soundEnabled, userId) },
+          { label: 'Board Coordinates', desc: 'Show a-h and 1-8 labels', checked: showCoordinates, onChange: () => setShowCoordinates(!showCoordinates, userId) },
+          { label: 'Auto-Flip Board', desc: 'Orient the board to your color', checked: autoFlip, onChange: () => setAutoFlip(!autoFlip, userId) },
         ].map((pref) => (
           <div
             key={pref.label}
