@@ -3,6 +3,7 @@ import { API_BASE } from '../config';
 import { Chess } from 'chess.js';
 import ChessBoard from '../components/Board/ChessBoard';
 import { useUserStore } from '../stores/userStore';
+import { chessSounds } from '../utils/sound';
 
 interface PuzzleData {
   id: string;
@@ -88,6 +89,18 @@ export default function Puzzle() {
           setLastMove({ from, to });
           setChess(new Chess(newChess.fen()));
 
+          const history = newChess.history({ verbose: true });
+          const userMove = history[history.length - 1];
+          if (userMove) {
+            if (userMove.san.includes('+') || userMove.san.includes('#')) {
+              chessSounds.playCheck();
+            } else if (userMove.san.includes('x')) {
+              chessSounds.playCapture();
+            } else {
+              chessSounds.playMove();
+            }
+          }
+
           const nextMoveIndex = currentMoveIndex + 1;
 
           if (nextMoveIndex >= puzzle.moves.length) {
@@ -95,6 +108,10 @@ export default function Puzzle() {
             setStreak((s) => s + 1);
             setRatingDiff(12);
             setPuzzleRating((r) => r + 12);
+
+            setTimeout(() => {
+              chessSounds.playGameOver();
+            }, 350);
 
             if (user && accessToken) {
               fetch(`${API_BASE}/puzzles/${puzzle.id}/attempt`, {
@@ -123,6 +140,18 @@ export default function Puzzle() {
                   afterOpponent.move({ from: oFrom, to: oTo, promotion: oPromo });
                   setChess(new Chess(afterOpponent.fen()));
                   setLastMove({ from: oFrom, to: oTo });
+
+                  const opHist = afterOpponent.history({ verbose: true });
+                  const opMove = opHist[opHist.length - 1];
+                  if (opMove) {
+                    if (opMove.san.includes('+') || opMove.san.includes('#')) {
+                      chessSounds.playCheck();
+                    } else if (opMove.san.includes('x')) {
+                      chessSounds.playCapture();
+                    } else {
+                      chessSounds.playMove();
+                    }
+                  }
                 } catch {}
               }
             }, 300);
@@ -133,6 +162,7 @@ export default function Puzzle() {
         return true;
       } else {
         setAttempts((a) => a + 1);
+        chessSounds.playGameOver();
 
         if (attempts >= 1) {
           setStatus('wrong');

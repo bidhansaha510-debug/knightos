@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
 import { getWsUrl } from '../config';
 import { useWebSocket } from './useWebSocket';
+import { chessSounds } from '../utils/sound';
 import { useGameStore } from '../stores/gameStore';
 import type {
   ServerGameMessage,
@@ -63,6 +64,15 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
           }
           // Clear any pending draw offer when a move is made
           setDrawOffer(null);
+
+          const san = moveMsg.san || '';
+          if (san.includes('+') || san.includes('#')) {
+            chessSounds.playCheck();
+          } else if (san.includes('x')) {
+            chessSounds.playCapture();
+          } else {
+            chessSounds.playMove();
+          }
           break;
         }
         case 'game_over': {
@@ -78,6 +88,7 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
           }
           setDrawOffer(null);
           onGameOver?.(overMsg.result, overMsg.termination);
+          chessSounds.playGameOver();
           break;
         }
         case 'illegal_move': {

@@ -8,6 +8,7 @@ import { useStockfish } from '../hooks/useStockfish';
 import { getOpeningName } from '../utils/openings';
 import { API_BASE } from '../config';
 import type { GameMove } from '@knightos/shared';
+import { chessSounds } from '../utils/sound';
 
 export default function Analysis() {
   const { id } = useParams<{ id: string }>();
@@ -141,6 +142,15 @@ export default function Analysis() {
 
         if (isEngineOn && isReady) analyze(newChess.fen());
 
+        const san = move.san || '';
+        if (san.includes('+') || san.includes('#')) {
+          chessSounds.playCheck();
+        } else if (san.includes('x')) {
+          chessSounds.playCapture();
+        } else {
+          chessSounds.playMove();
+        }
+
         return true;
       } catch {
         return false;
@@ -165,6 +175,20 @@ export default function Analysis() {
           setLastMove({ from: uci.slice(0, 2), to: uci.slice(2, 4) });
         }
         if (isEngineOn && isReady) analyze(moves[index].fen);
+      }
+
+      // Play move stepping sounds
+      if (index >= 0 && index < moves.length) {
+        const move = moves[index];
+        if (move.san.includes('+') || move.san.includes('#')) {
+          chessSounds.playCheck();
+        } else if (move.san.includes('x')) {
+          chessSounds.playCapture();
+        } else {
+          chessSounds.playMove();
+        }
+      } else if (index === -1) {
+        chessSounds.playMove();
       }
     },
     [moves, chess, isEngineOn, isReady, analyze]

@@ -453,6 +453,7 @@ export default function ChessBoard({
                 key={`piece-${square}`}
                 transform={`translate(${x}, ${y})`}
                 onPointerDown={(e) => handlePointerDown(e, square)}
+                onClick={() => handleSquareClick(square)}
                 className="cursor-pointer"
                 style={{ touchAction: 'none' }}
               >
@@ -473,6 +474,7 @@ export default function ChessBoard({
               key={`piece-${square}`}
               transform={`translate(${x}, ${y})`}
               onPointerDown={(e) => handlePointerDown(e, square)}
+              onClick={() => handleSquareClick(square)}
               className="cursor-pointer"
               style={{ touchAction: 'none' }}
             >
