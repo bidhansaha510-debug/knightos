@@ -22,6 +22,7 @@ export default function Puzzle() {
   const [attempts, setAttempts] = useState(0);
   const [streak, setStreak] = useState(0);
   const [puzzleRating, setPuzzleRating] = useState(1500);
+  const [ratingDiff, setRatingDiff] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
   const [startTime, setStartTime] = useState(Date.now());
@@ -56,6 +57,7 @@ export default function Puzzle() {
 
         setStatus('playing');
         setAttempts(0);
+        setRatingDiff(null);
         setStartTime(Date.now());
       }
     } catch (err) {
@@ -91,6 +93,8 @@ export default function Puzzle() {
           if (nextMoveIndex >= puzzle.moves.length) {
             setStatus('solved');
             setStreak((s) => s + 1);
+            setRatingDiff(12);
+            setPuzzleRating((r) => r + 12);
 
             if (user && accessToken) {
               fetch(`${API_BASE}/puzzles/${puzzle.id}/attempt`, {
@@ -133,6 +137,8 @@ export default function Puzzle() {
         if (attempts >= 1) {
           setStatus('wrong');
           setStreak(0);
+          setRatingDiff(-8);
+          setPuzzleRating((r) => Math.max(100, r - 8));
 
           if (user && accessToken) {
             fetch(`${API_BASE}/puzzles/${puzzle.id}/attempt`, {
@@ -190,52 +196,68 @@ export default function Puzzle() {
 
       <div className="puzzle-panel">
         {/* Stats row */}
-        <div style={{ display: 'flex', gap: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', gap: 'var(--sp-6)' }}>
           <div>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+            <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
               Streak
             </span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)', color: 'var(--c-win)' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-lg)', fontWeight: 'var(--wt-bold)', color: 'var(--c-win)' }}>
               {streak}
             </span>
           </div>
           <div>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+            <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
               Rating
             </span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
-              {puzzleRating}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-lg)', fontWeight: 'var(--wt-bold)', color: 'var(--c-text)' }}>
+                {puzzleRating}
+              </span>
+              {ratingDiff !== null && (
+                <span
+                  key={puzzle?.id + '-' + ratingDiff}
+                  className="rating-change-badge"
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 'var(--tx-xs)',
+                    fontWeight: 'var(--wt-bold)',
+                    color: ratingDiff >= 0 ? 'var(--c-win)' : 'var(--c-loss)',
+                  }}
+                >
+                  {ratingDiff >= 0 ? `+${ratingDiff}` : ratingDiff}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Puzzle info */}
         {puzzle && (
-          <div style={{ borderTop: '1px solid var(--c-border)', paddingTop: 'var(--space-4)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3)' }}>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ borderTop: '1px solid var(--c-border)', paddingTop: 'var(--sp-4)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--sp-3)' }}>
+              <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Puzzle Rating
               </span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--c-text)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-sm)', color: 'var(--c-text)' }}>
                 {Math.round(puzzle.rating)}
               </span>
             </div>
 
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 'var(--space-2)' }}>
+            <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 'var(--sp-2)' }}>
               Themes
             </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-1)' }}>
               {puzzle.themes.map((theme) => (
                 <span
                   key={theme}
                   style={{
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 'var(--weight-medium)',
+                    fontSize: 'var(--tx-xs)',
+                    fontWeight: 'var(--wt-medium)',
                     color: 'var(--c-text-2)',
                     background: 'var(--c-elevated)',
                     border: '1px solid var(--c-border)',
                     borderRadius: 'var(--radius-full)',
-                    padding: '2px var(--space-2)',
+                    padding: '2px var(--sp-2)',
                   }}
                 >
                   {theme}
@@ -249,11 +271,11 @@ export default function Puzzle() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           {status === 'playing' && (
             <div>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text)' }}>
+              <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text)' }}>
                 Find the best move for {sideToMove ? 'Black' : 'White'}.
               </p>
               {attempts > 0 && (
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--c-warning)', marginTop: 'var(--space-2)' }}>
+                <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-warn)', marginTop: 'var(--sp-2)' }}>
                   Try again ({2 - attempts} attempt{2 - attempts !== 1 ? 's' : ''} left)
                 </p>
               )}
@@ -262,13 +284,13 @@ export default function Puzzle() {
 
           {status === 'solved' && (
             <div>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-win)', fontWeight: 'var(--weight-medium)' }}>
+              <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-win)', fontWeight: 'var(--wt-medium)' }}>
                 ✓ Puzzle solved
               </p>
               <button
                 onClick={fetchPuzzle}
-                className="btn-primary"
-                style={{ marginTop: 'var(--space-4)', width: '100%' }}
+                className="btn-play"
+                style={{ marginTop: 'var(--sp-4)', width: '100%', justifyContent: 'center' }}
               >
                 Next Puzzle
               </button>
@@ -277,14 +299,14 @@ export default function Puzzle() {
 
           {status === 'wrong' && (
             <div>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-loss)', fontWeight: 'var(--weight-medium)' }}>
+              <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-loss)', fontWeight: 'var(--wt-medium)' }}>
                 ✗ Incorrect
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginTop: 'var(--space-4)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', marginTop: 'var(--sp-4)' }}>
                 <button onClick={showSolution} className="btn-secondary" style={{ width: '100%' }}>
                   Show Solution
                 </button>
-                <button onClick={fetchPuzzle} className="btn-primary" style={{ width: '100%' }}>
+                <button onClick={fetchPuzzle} className="btn-play" style={{ width: '100%', justifyContent: 'center' }}>
                   Next Puzzle
                 </button>
               </div>
@@ -292,7 +314,7 @@ export default function Puzzle() {
           )}
 
           {isLoading && (
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}>
+            <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text-2)' }}>
               Loading puzzle…
             </p>
           )}

@@ -32,6 +32,7 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
   return (
     <div
       ref={scrollRef}
+      className="move-list-scrollbar"
       style={{
         overflowY: 'auto',
         flex: 1,
@@ -40,8 +41,8 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
       {movePairs.length === 0 && (
         <p style={{
           color: 'var(--c-text-3)',
-          fontSize: 'var(--text-sm)',
-          padding: 'var(--space-5) var(--space-4)',
+          fontSize: 'var(--tx-sm)',
+          padding: 'var(--sp-5) var(--sp-4)',
           textAlign: 'left',
         }}>
           No moves yet
@@ -61,7 +62,7 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
               gridTemplateColumns: '32px 1fr 1fr',
               height: 32,
               alignItems: 'center',
-              fontSize: 'var(--text-sm)',
+              fontSize: 'var(--tx-sm)',
               fontFamily: 'var(--font-mono)',
             }}
           >
@@ -69,8 +70,8 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
             <span style={{
               color: 'var(--c-text-3)',
               textAlign: 'right',
-              paddingRight: 'var(--space-2)',
-              fontSize: 'var(--text-xs)',
+              paddingRight: 'var(--sp-2)',
+              fontSize: 'var(--tx-xs)',
             }}>
               {pair.number}.
             </span>
@@ -82,9 +83,9 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
               style={{
                 background: isWhiteActive ? 'var(--c-elevated)' : 'transparent',
                 border: 'none',
-                borderLeft: isWhiteActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+                borderLeft: isWhiteActive ? '2px solid var(--c-gold)' : '2px solid transparent',
                 color: 'var(--c-text)',
-                padding: '0 var(--space-2)',
+                padding: '0 var(--sp-2)',
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
@@ -111,9 +112,9 @@ export default function MoveList({ moves, currentMoveIndex, onMoveClick }: MoveL
                 style={{
                   background: isBlackActive ? 'var(--c-elevated)' : 'transparent',
                   border: 'none',
-                  borderLeft: isBlackActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+                  borderLeft: isBlackActive ? '2px solid var(--c-gold)' : '2px solid transparent',
                   color: 'var(--c-text)',
-                  padding: '0 var(--space-2)',
+                  padding: '0 var(--sp-2)',
                   height: '100%',
                   display: 'flex',
                   alignItems: 'center',

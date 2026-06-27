@@ -31,8 +31,9 @@ export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
   }
 
   const blackPercent = 100 - whitePercent;
-  const showInBlack = (evalScore !== null && evalScore < 0) || (mate !== null && mate < 0);
-  const showInWhite = (evalScore !== null && evalScore >= 0) || (mate !== null && mate > 0);
+  // Hide label if portion is under ~1.5% (approx 5px on mobile/desktop)
+  const showInBlack = ((evalScore !== null && evalScore < 0) || (mate !== null && mate < 0)) && blackPercent > 1.5;
+  const showInWhite = ((evalScore !== null && evalScore >= 0) || (mate !== null && mate > 0)) && whitePercent > 1.5;
 
   return (
     <div
@@ -54,7 +55,7 @@ export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          transition: 'height 350ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+          transition: 'height 400ms var(--ease-inout)',
           position: 'relative',
         }}
       >
@@ -63,7 +64,7 @@ export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
             color: 'var(--c-text)',
             fontFamily: 'var(--font-mono)',
             fontSize: '9px',
-            fontWeight: 'var(--weight-medium)',
+            fontWeight: 'var(--wt-medium)',
             writingMode: 'vertical-lr',
             textOrientation: 'mixed',
             paddingTop: 4,
@@ -81,7 +82,7 @@ export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
           display: 'flex',
           alignItems: 'flex-end',
           justifyContent: 'center',
-          transition: 'height 350ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+          transition: 'height 400ms var(--ease-inout)',
           position: 'relative',
         }}
       >
@@ -90,7 +91,7 @@ export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
             color: 'var(--c-base)',
             fontFamily: 'var(--font-mono)',
             fontSize: '9px',
-            fontWeight: 'var(--weight-medium)',
+            fontWeight: 'var(--wt-medium)',
             writingMode: 'vertical-lr',
             textOrientation: 'mixed',
             paddingBottom: 4,

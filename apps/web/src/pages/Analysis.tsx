@@ -4,6 +4,7 @@ import ChessBoard from '../components/Board/ChessBoard';
 import MoveList from '../components/MoveList/MoveList';
 import EvalBar from '../components/EvalBar/EvalBar';
 import { useStockfish } from '../hooks/useStockfish';
+import { getOpeningName } from '../utils/openings';
 import type { GameMove } from '@knightos/shared';
 
 export default function Analysis() {
@@ -16,7 +17,7 @@ export default function Analysis() {
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
   const [isEngineOn, setIsEngineOn] = useState(false);
 
-  const { isReady, isAnalyzing, evals, bestMove, depth, analyze, stop } = useStockfish();
+  const { isReady, isAnalyzing, evals, depth, analyze, stop } = useStockfish();
 
   const currentEval = evals.length > 0 ? evals[0] : null;
   const evalCp = currentEval?.score.type === 'cp' ? currentEval.score.value : null;
@@ -133,31 +134,40 @@ export default function Analysis() {
     }
   }, [inputPgn, isEngineOn, isReady, analyze]);
 
+  const openingName = useMemo(() => {
+    return getOpeningName(moves);
+  }, [moves]);
+
   return (
     <div className="analysis-layout" style={{ background: 'var(--c-base)' }}>
-      {/* Eval bar */}
-      {isEngineOn && (
-        <EvalBar eval={evalCp} mate={evalMate} />
-      )}
-
-      {/* Board */}
+      {/* Board section */}
       <div style={{
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--space-4)',
+        padding: 'var(--sp-4)',
         minWidth: 0,
       }}>
-        <div style={{ width: '100%', maxWidth: 600, aspectRatio: '1' }}>
-          <ChessBoard
-            fen={chess.fen()}
-            flipped={flipped}
-            interactive={true}
-            onMove={handleMove}
-            lastMove={lastMove}
-            size={600}
-          />
+        <div style={{
+          display: 'flex',
+          alignItems: 'stretch',
+          width: '100%',
+          maxWidth: 610,
+        }}>
+          {isEngineOn && (
+            <EvalBar eval={evalCp} mate={evalMate} />
+          )}
+          <div style={{ flex: 1, aspectRatio: '1' }}>
+            <ChessBoard
+              fen={chess.fen()}
+              flipped={flipped}
+              interactive={true}
+              onMove={handleMove}
+              lastMove={lastMove}
+              size={600}
+            />
+          </div>
         </div>
       </div>
 
@@ -173,18 +183,18 @@ export default function Analysis() {
       }}>
         {/* Engine toggle */}
         <div style={{
-          padding: 'var(--space-3) var(--space-4)',
+          padding: 'var(--sp-3) var(--sp-4)',
           borderBottom: '1px solid var(--c-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
           <div>
-            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)' }}>
+            <span style={{ fontSize: 'var(--tx-sm)', fontWeight: 'var(--wt-medium)', color: 'var(--c-text)' }}>
               Stockfish
             </span>
             {isAnalyzing && (
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', marginLeft: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', marginLeft: 'var(--sp-2)' }}>
                 d{depth}
               </span>
             )}
@@ -192,32 +202,53 @@ export default function Analysis() {
           <button
             onClick={toggleEngine}
             disabled={!isReady}
-            className={isEngineOn ? 'btn-primary' : 'btn-secondary'}
-            style={{ padding: '4px var(--space-3)', fontSize: 'var(--text-xs)' }}
+            className={isEngineOn ? 'btn-play' : 'btn-secondary'}
+            style={{ padding: '2px var(--sp-3)', fontSize: 'var(--tx-2xs)' }}
           >
             {isEngineOn ? 'ON' : 'OFF'}
           </button>
         </div>
 
+        {/* Opening Name display */}
+        {openingName && (
+          <div
+            className="opening-name-fade"
+            style={{
+              padding: 'var(--sp-2) var(--sp-4)',
+              borderBottom: '1px solid var(--c-border)',
+              background: 'var(--c-elevated)',
+              fontSize: 'var(--tx-xs)',
+              color: 'var(--c-gold)',
+              fontWeight: 'var(--wt-medium)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+            title={openingName}
+          >
+            📖 {openingName}
+          </div>
+        )}
+
         {/* Engine lines */}
         {isEngineOn && evals.length > 0 && (
           <div style={{
-            padding: 'var(--space-2) var(--space-4)',
+            padding: 'var(--sp-2) var(--sp-4)',
             borderBottom: '1px solid var(--c-border)',
           }}>
             {evals.map((ev) => (
               <div key={ev.multipv} style={{
                 display: 'flex',
                 alignItems: 'baseline',
-                gap: 'var(--space-2)',
-                fontSize: 'var(--text-xs)',
+                gap: 'var(--sp-2)',
+                fontSize: 'var(--tx-xs)',
                 fontFamily: 'var(--font-mono)',
                 marginBottom: 2,
               }}>
                 <span style={{
                   minWidth: 40,
                   textAlign: 'right',
-                  fontWeight: 'var(--weight-bold)',
+                  fontWeight: 'var(--wt-bold)',
                   color: ev.score.type === 'mate'
                     ? (ev.score.value > 0 ? 'var(--c-win)' : 'var(--c-loss)')
                     : ev.score.value > 50 ? 'var(--c-win)'
@@ -259,32 +290,32 @@ export default function Analysis() {
 
         {/* FEN/PGN input */}
         <div style={{
-          padding: 'var(--space-3) var(--space-4)',
+          padding: 'var(--sp-3) var(--sp-4)',
           borderTop: '1px solid var(--c-border)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--space-2)',
+          gap: 'var(--sp-2)',
         }}>
-          <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+          <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
             <input
               type="text"
               placeholder="Paste FEN…"
               value={inputFen}
               onChange={(e) => setInputFen(e.target.value)}
               className="input"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', flex: 1, padding: '6px var(--space-2)' }}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-xs)', flex: 1, padding: '6px var(--sp-2)' }}
             />
-            <button onClick={loadFen} className="btn-ghost" style={{ fontSize: 'var(--text-xs)' }}>Load</button>
+            <button onClick={loadFen} className="btn-ghost" style={{ fontSize: 'var(--tx-xs)' }}>Load</button>
           </div>
-          <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+          <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
             <textarea
               placeholder="Paste PGN…"
               value={inputPgn}
               onChange={(e) => setInputPgn(e.target.value)}
               className="input"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', flex: 1, padding: '6px var(--space-2)', resize: 'none', height: 48 }}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-xs)', flex: 1, padding: '6px var(--sp-2)', resize: 'none', height: 48 }}
             />
-            <button onClick={loadPgn} className="btn-ghost" style={{ fontSize: 'var(--text-xs)' }}>Load</button>
+            <button onClick={loadPgn} className="btn-ghost" style={{ fontSize: 'var(--tx-xs)' }}>Load</button>
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--c-text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {chess.fen()}

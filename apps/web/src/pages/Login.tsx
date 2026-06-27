@@ -39,7 +39,7 @@ export default function Login() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 'var(--space-4)',
+      padding: 'var(--sp-4)',
     }}>
       <div style={{
         width: '100%',
@@ -47,21 +47,21 @@ export default function Login() {
         background: 'var(--c-surface)',
         border: '1px solid var(--c-border)',
         borderRadius: 'var(--radius-lg)',
-        padding: 'var(--space-6)',
+        padding: 'var(--sp-6)',
       }}>
-        <div style={{ marginBottom: 'var(--space-5)' }}>
+        <div style={{ marginBottom: 'var(--sp-5)' }}>
           <h1 style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-lg)',
-            fontWeight: 'var(--weight-bold)',
+            fontSize: 'var(--tx-lg)',
+            fontWeight: 'var(--wt-bold)',
             color: 'var(--c-text)',
-            marginBottom: 'var(--space-2)',
+            marginBottom: 'var(--sp-2)',
           }}>
             KnightOS
           </h1>
           <p style={{
             color: 'var(--c-text-2)',
-            fontSize: 'var(--text-sm)',
+            fontSize: 'var(--tx-sm)',
           }}>
             {isRegister ? 'Create your account' : 'Sign in to your account'}
           </p>
@@ -73,22 +73,22 @@ export default function Login() {
               background: 'transparent',
               border: '1px solid var(--c-loss)',
               borderRadius: 'var(--radius-md)',
-              padding: '10px var(--space-4)',
-              marginBottom: 'var(--space-4)',
+              padding: '10px var(--sp-4)',
+              marginBottom: 'var(--sp-4)',
               color: 'var(--c-loss)',
-              fontSize: 'var(--text-sm)',
+              fontSize: 'var(--tx-sm)',
             }}>
               {error}
             </div>
           )}
 
-          <div style={{ marginBottom: 'var(--space-4)' }}>
+          <div style={{ marginBottom: 'var(--sp-4)' }}>
             <label htmlFor="login-username" style={{
               display: 'block',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 'var(--weight-medium)',
+              fontSize: 'var(--tx-xs)',
+              fontWeight: 'var(--wt-medium)',
               color: 'var(--c-text-2)',
-              marginBottom: 'var(--space-1)',
+              marginBottom: 'var(--sp-1)',
             }}>
               Username
             </label>
@@ -107,13 +107,13 @@ export default function Login() {
           </div>
 
           {isRegister && (
-            <div style={{ marginBottom: 'var(--space-4)' }}>
+            <div style={{ marginBottom: 'var(--sp-4)' }}>
               <label htmlFor="login-email" style={{
                 display: 'block',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 'var(--weight-medium)',
+                fontSize: 'var(--tx-xs)',
+                fontWeight: 'var(--wt-medium)',
                 color: 'var(--c-text-2)',
-                marginBottom: 'var(--space-1)',
+                marginBottom: 'var(--sp-1)',
               }}>
                 Email
               </label>
@@ -130,13 +130,13 @@ export default function Login() {
             </div>
           )}
 
-          <div style={{ marginBottom: 'var(--space-5)' }}>
+          <div style={{ marginBottom: 'var(--sp-5)' }}>
             <label htmlFor="login-password" style={{
               display: 'block',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 'var(--weight-medium)',
+              fontSize: 'var(--tx-xs)',
+              fontWeight: 'var(--wt-medium)',
               color: 'var(--c-text-2)',
-              marginBottom: 'var(--space-1)',
+              marginBottom: 'var(--sp-1)',
             }}>
               Password
             </label>
@@ -156,22 +156,23 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="btn-primary"
-            style={{ width: '100%' }}
+            className="btn-play"
+            style={{ width: '100%', justifyContent: 'center' }}
           >
             {isLoading ? 'Processing…' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
-        <div style={{ marginTop: 'var(--space-5)', textAlign: 'center' }}>
+        <div style={{ marginTop: 'var(--sp-5)', textAlign: 'center' }}>
           <button
             onClick={() => { setIsRegister(!isRegister); setError(''); }}
             style={{
-              color: 'var(--c-accent)',
-              fontSize: 'var(--text-sm)',
+              color: 'var(--c-gold)',
+              fontSize: 'var(--tx-sm)',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
+              fontWeight: 'var(--wt-medium)',
             }}
           >
             {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
@@ -179,8 +180,8 @@ export default function Login() {
         </div>
 
         <div style={{
-          marginTop: 'var(--space-5)',
-          paddingTop: 'var(--space-4)',
+          marginTop: 'var(--sp-5)',
+          paddingTop: 'var(--sp-4)',
           borderTop: '1px solid var(--c-border)',
           textAlign: 'center',
         }}>
@@ -188,7 +189,7 @@ export default function Login() {
             onClick={() => navigate('/')}
             style={{
               color: 'var(--c-text-2)',
-              fontSize: 'var(--text-xs)',
+              fontSize: 'var(--tx-xs)',
               background: 'none',
               border: 'none',
               cursor: 'pointer',

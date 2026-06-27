@@ -112,7 +112,7 @@ export default function ChessBoard({
 
   const getSquareColor = useCallback(
     (col: number, row: number): string => {
-      return (col + row) % 2 === 0 ? 'var(--sq-light)' : 'var(--sq-dark)';
+      return (col + row) % 2 === 0 ? 'var(--c-sq-light)' : 'var(--c-sq-dark)';
     },
     []
   );
@@ -289,7 +289,7 @@ export default function ChessBoard({
                   x={coordSize + i * squareSize + squareSize / 2}
                   y={totalSize - 2}
                   textAnchor="middle"
-                  fill="var(--text-muted)"
+                  fill="var(--c-text-2)"
                   fontSize="11"
                   fontFamily="Inter, sans-serif"
                 >
@@ -306,7 +306,7 @@ export default function ChessBoard({
                   x={6}
                   y={coordSize + i * squareSize + squareSize / 2 + 4}
                   textAnchor="middle"
-                  fill="var(--text-muted)"
+                  fill="var(--c-text-2)"
                   fontSize="11"
                   fontFamily="Inter, sans-serif"
                 >
@@ -330,10 +330,11 @@ export default function ChessBoard({
 
             // Last move highlight
             if (lastMove && (square === lastMove.from || square === lastMove.to)) {
+              const lastMoveColor = (col + row) % 2 === 0 ? 'var(--c-sq-last-l)' : 'var(--c-sq-last-d)';
               overlay = (
                 <rect
                   x={x} y={y} width={squareSize} height={squareSize}
-                  fill="var(--sq-lastmove)"
+                  fill={lastMoveColor}
                   pointerEvents="none"
                 />
               );
@@ -344,7 +345,7 @@ export default function ChessBoard({
               overlay = (
                 <rect
                   x={x} y={y} width={squareSize} height={squareSize}
-                  fill="var(--sq-selected)"
+                  fill="var(--c-sq-select)"
                   pointerEvents="none"
                 />
               );
@@ -353,10 +354,9 @@ export default function ChessBoard({
             // Check highlight
             if (square === checkSquare) {
               overlay = (
-                <circle
-                  cx={x + squareSize / 2} cy={y + squareSize / 2}
-                  r={squareSize / 2}
-                  fill="rgba(255, 0, 0, 0.5)"
+                <rect
+                  x={x} y={y} width={squareSize} height={squareSize}
+                  fill="var(--c-sq-check)"
                   pointerEvents="none"
                 />
               );
@@ -406,7 +406,7 @@ export default function ChessBoard({
                 cy={y + squareSize / 2}
                 r={squareSize * 0.42}
                 fill="none"
-                stroke="var(--sq-legal)"
+                stroke="var(--c-sq-legal)"
                 strokeWidth={squareSize * 0.08}
                 onClick={() => handleSquareClick(square)}
                 className="cursor-pointer"
@@ -421,7 +421,7 @@ export default function ChessBoard({
               cx={x + squareSize / 2}
               cy={y + squareSize / 2}
               r={squareSize * 0.14}
-              fill="var(--sq-legal)"
+              fill="var(--c-sq-legal)"
               onClick={() => handleSquareClick(square)}
               className="cursor-pointer"
             />
@@ -568,8 +568,8 @@ export default function ChessBoard({
                     <rect
                       x={x} y={py}
                       width={squareSize} height={squareSize}
-                      fill="var(--bg-elevated)"
-                      stroke="var(--accent-blue)"
+                      fill="var(--c-elevated)"
+                      stroke="var(--c-gold)"
                       strokeWidth={1.5}
                     />
                     <g transform={`translate(${x}, ${py})`}>

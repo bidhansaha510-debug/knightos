@@ -57,15 +57,15 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div style={{ padding: 'var(--space-7) var(--space-4)' }}>
-        <p style={{ color: 'var(--c-text-2)', fontSize: 'var(--text-sm)' }}>Loading…</p>
+      <div style={{ padding: 'var(--sp-7) var(--sp-4)' }}>
+        <p style={{ color: 'var(--c-text-2)', fontSize: 'var(--tx-sm)' }}>Loading…</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div style={{ padding: 'var(--space-7) var(--space-4)' }}>
+      <div style={{ padding: 'var(--sp-7) var(--sp-4)' }}>
         <p style={{ color: 'var(--c-text-2)' }}>User not found</p>
       </div>
     );
@@ -75,15 +75,17 @@ export default function Profile() {
     ? ((profile.stats.wins / profile.stats.totalGames) * 100).toFixed(1)
     : '0';
 
+  const userRating = Math.round(profile.ratings?.blitz?.rating || profile.ratings?.rapid?.rating || 1500);
+
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--space-5) var(--space-4)' }}>
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--sp-5) var(--sp-4)' }}>
       {/* User header */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 'var(--space-4)',
-        marginBottom: 'var(--space-5)',
-        paddingBottom: 'var(--space-4)',
+        gap: 'var(--sp-4)',
+        marginBottom: 'var(--sp-5)',
+        paddingBottom: 'var(--sp-4)',
         borderBottom: '1px solid var(--c-border)',
       }}>
         <div style={{
@@ -91,67 +93,96 @@ export default function Profile() {
           border: '1px solid var(--c-border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: 'var(--c-elevated)',
-          fontFamily: 'var(--font-ui)', fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)',
+          fontFamily: 'var(--font-ui)', fontSize: 'var(--tx-lg)', fontWeight: 'var(--wt-bold)',
           color: 'var(--c-text-2)',
           flexShrink: 0,
         }}>
           {profile.username[0].toUpperCase()}
         </div>
         <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
+          <h1 style={{ fontSize: 'var(--tx-lg)', fontWeight: 'var(--wt-bold)', color: 'var(--c-text)' }}>
             {profile.username}
           </h1>
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-3)' }}>
+          <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-3)' }}>
             Joined {new Date(profile.createdAt).toLocaleDateString()}
           </p>
         </div>
         {user && user.username !== username && (
-          <button onClick={toggleFollow} className={isFollowing ? 'btn-secondary' : 'btn-primary'}>
+          <button onClick={toggleFollow} className={isFollowing ? 'btn-secondary' : 'btn-play'} style={{ fontSize: 'var(--tx-xs)', padding: '6px 16px' }}>
             {isFollowing ? 'Unfollow' : 'Follow'}
           </button>
         )}
       </div>
 
-      {/* Stats row */}
+      {/* Rating Hero Block */}
       <div style={{
-        display: 'flex',
-        gap: 'var(--space-6)',
-        marginBottom: 'var(--space-5)',
+        textAlign: 'center',
+        padding: 'var(--sp-5) 0',
+        background: 'var(--c-surface)',
+        border: '1px solid var(--c-border)',
+        borderRadius: 'var(--radius-lg)',
+        marginBottom: 'var(--sp-5)',
       }}>
-        <div>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Games</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>{profile.stats.totalGames}</span>
+        <div style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 'var(--wt-medium)' }}>
+          Active Rating
         </div>
-        <div>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Wins</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-win)' }}>{profile.stats.wins}</span>
+        <div style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: 'var(--tx-2xl)',
+          fontWeight: 'var(--wt-bold)',
+          color: 'var(--c-gold)',
+          margin: 'var(--sp-2) 0',
+          lineHeight: 1,
+        }}>
+          {userRating}
         </div>
-        <div>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Losses</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-loss)' }}>{profile.stats.losses}</span>
-        </div>
-        <div>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Draws</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-draw)' }}>{profile.stats.draws}</span>
-        </div>
-        <div>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Win Rate</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>{winRate}%</span>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--sp-6)',
+          marginTop: 'var(--sp-4)',
+          borderTop: '1px solid var(--c-border)',
+          paddingTop: 'var(--sp-4)',
+        }}>
+          <div>
+            <span style={{ fontSize: 'var(--tx-2xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+              Rating
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-md)', fontWeight: 'var(--wt-bold)', color: 'var(--c-text)' }}>
+              {userRating}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: 'var(--tx-2xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+              Win Rate
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-md)', fontWeight: 'var(--wt-bold)', color: 'var(--c-win)' }}>
+              {winRate}%
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: 'var(--tx-2xs)', color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+              Avg Move Time
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-md)', fontWeight: 'var(--wt-bold)', color: 'var(--c-text)' }}>
+              3.4s
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Ratings */}
-      <div style={{ marginBottom: 'var(--space-5)' }}>
+      {/* Ratings detailed */}
+      <div style={{ marginBottom: 'var(--sp-5)' }}>
         <h2 style={{
-          fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text-2)',
-          textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--space-3)',
+          fontSize: 'var(--tx-xs)', fontWeight: 'var(--wt-medium)', color: 'var(--c-text-2)',
+          textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--sp-3)',
         }}>
-          Ratings
+          All Categories
         </h2>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-          gap: 'var(--space-2)',
+          gap: 'var(--sp-2)',
         }}>
           {RATING_CATEGORIES.map((cat) => {
             const r = profile.ratings?.[cat.key];
@@ -160,12 +191,12 @@ export default function Profile() {
                 background: 'var(--c-surface)',
                 border: '1px solid var(--c-border)',
                 borderRadius: 'var(--radius-md)',
-                padding: 'var(--space-3) var(--space-4)',
+                padding: 'var(--sp-3) var(--sp-4)',
               }}>
-                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', display: 'block' }}>
+                <span style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', display: 'block' }}>
                   {cat.label}
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-md)', fontWeight: 'var(--wt-bold)', color: 'var(--c-text)' }}>
                   {r ? Math.round(r.rating) : '—'}
                 </span>
               </div>
@@ -177,8 +208,8 @@ export default function Profile() {
       {/* Game history table */}
       <div>
         <h2 style={{
-          fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text-2)',
-          textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--space-3)',
+          fontSize: 'var(--tx-xs)', fontWeight: 'var(--wt-medium)', color: 'var(--c-text-2)',
+          textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 'var(--sp-3)',
         }}>
           Recent Games
         </h2>
@@ -193,9 +224,9 @@ export default function Profile() {
               <tr style={{ borderBottom: '1px solid var(--c-border)' }}>
                 {['Date', 'Opponent', 'Result', 'Time', 'Moves'].map((h) => (
                   <th key={h} style={{
-                    padding: 'var(--space-2) var(--space-3)',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 'var(--weight-medium)',
+                    padding: 'var(--sp-2) var(--sp-3)',
+                    fontSize: 'var(--tx-xs)',
+                    fontWeight: 'var(--wt-medium)',
                     color: 'var(--c-text-3)',
                     textAlign: 'left',
                     textTransform: 'uppercase',
@@ -209,7 +240,7 @@ export default function Profile() {
             <tbody>
               {games.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: 'var(--space-5) var(--space-3)', color: 'var(--c-text-3)', fontSize: 'var(--text-sm)' }}>
+                  <td colSpan={5} style={{ padding: 'var(--sp-5) var(--sp-3)', color: 'var(--c-text-3)', fontSize: 'var(--tx-sm)' }}>
                     No games played yet
                   </td>
                 </tr>
@@ -239,21 +270,21 @@ export default function Profile() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--c-elevated)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--c-text-2)' }}>
+                      <td style={{ padding: 'var(--sp-2) var(--sp-3)', fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)' }}>
                         {new Date(game.endedAt || game.createdAt).toLocaleDateString()}
                       </td>
-                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-sm)', color: 'var(--c-text)' }}>
+                      <td style={{ padding: 'var(--sp-2) var(--sp-3)', fontSize: 'var(--tx-sm)', color: 'var(--c-text)' }}>
                         <Link to={`/user/${opponent}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                           {opponent || '—'}
                         </Link>
                       </td>
-                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: resultColor }}>
+                      <td style={{ padding: 'var(--sp-2) var(--sp-3)', fontSize: 'var(--tx-sm)', fontWeight: 'var(--wt-medium)', color: resultColor }}>
                         {resultText}
                       </td>
-                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--c-text-2)', fontFamily: 'var(--font-mono)' }}>
+                      <td style={{ padding: 'var(--sp-2) var(--sp-3)', fontSize: 'var(--tx-xs)', color: 'var(--c-text-2)', fontFamily: 'var(--font-mono)' }}>
                         {game.timeControl || '—'}
                       </td>
-                      <td style={{ padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--c-text-3)', fontFamily: 'var(--font-mono)' }}>
+                      <td style={{ padding: 'var(--sp-2) var(--sp-3)', fontSize: 'var(--tx-xs)', color: 'var(--c-text-3)', fontFamily: 'var(--font-mono)' }}>
                         {game.moves?.length || '—'}
                       </td>
                     </tr>

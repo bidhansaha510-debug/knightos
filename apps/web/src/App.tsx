@@ -25,15 +25,15 @@ function NavLink({ path, label, isActive }: { path: string; label: string; isAct
       to={path}
       style={{
         fontFamily: 'var(--font-ui)',
-        fontSize: 'var(--text-sm)',
-        fontWeight: 'var(--weight-medium)',
+        fontSize: 'var(--tx-sm)',
+        fontWeight: 'var(--wt-medium)',
         color: isActive ? 'var(--c-text)' : 'var(--c-text-2)',
         textDecoration: 'none',
-        padding: '0 var(--space-3)',
+        padding: '0 var(--sp-3)',
         height: 48,
         display: 'flex',
         alignItems: 'center',
-        borderBottom: isActive ? '2px solid var(--c-accent)' : '2px solid transparent',
+        borderBottom: isActive ? '2px solid var(--c-gold)' : '2px solid transparent',
         transition: 'color var(--dur-fast) var(--ease-out)',
       }}
       onMouseEnter={(e) => {
@@ -61,6 +61,8 @@ function Header() {
 
   if (location.pathname === '/login') return null;
 
+  const userRating = user ? (user.ratings?.blitz?.rating || user.ratings?.rapid?.rating || 1500) : 1500;
+
   return (
     <>
       <header
@@ -68,10 +70,11 @@ function Header() {
           height: 48,
           background: 'var(--c-surface)',
           borderBottom: '1px solid var(--c-border)',
+          borderTop: '2px solid var(--c-gold)',
           display: 'flex',
           alignItems: 'center',
-          padding: '0 var(--space-4)',
-          gap: 'var(--space-5)',
+          padding: '0 var(--sp-4)',
+          gap: 'var(--sp-5)',
           position: 'sticky',
           top: 0,
           zIndex: 50,
@@ -82,9 +85,9 @@ function Header() {
           to="/"
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-md)',
-            fontWeight: 'var(--weight-bold)',
-            color: 'var(--c-text)',
+            fontSize: 'var(--tx-md)',
+            fontWeight: 'var(--wt-bold)',
+            color: 'var(--c-gold)',
             textDecoration: 'none',
             flexShrink: 0,
           }}
@@ -93,29 +96,57 @@ function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="nav-desktop" style={{ display: 'flex', gap: 'var(--space-1)', flex: 1 }}>
+        <nav className="nav-desktop" style={{ display: 'flex', gap: 'var(--sp-1)', flex: 1 }}>
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.path} path={item.path} label={item.label} isActive={location.pathname === item.path} />
           ))}
         </nav>
 
+        {/* Desktop player count */}
+        <div className="nav-desktop" style={{
+          fontSize: 'var(--tx-xs)',
+          fontFamily: 'var(--font-ui)',
+          color: 'var(--c-text-2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--sp-1)',
+          marginRight: 'var(--sp-2)',
+          userSelect: 'none',
+        }}>
+          <span style={{ color: 'var(--c-win)', fontSize: '10px' }}>●</span>
+          <span>1,248 playing</span>
+        </div>
+
         {/* Desktop user section */}
-        <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+        <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
           {user ? (
             <>
               <Link
                 to={`/user/${user.username}`}
-                style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--c-text)', textDecoration: 'none' }}
+                style={{ fontSize: 'var(--tx-sm)', fontWeight: 'var(--wt-medium)', color: 'var(--c-text)', textDecoration: 'none' }}
               >
                 {user.username}
               </Link>
-              <Link to="/settings" className="btn-ghost" style={{ fontSize: 'var(--text-sm)' }}>⚙</Link>
-              <button onClick={() => logout()} className="btn-ghost" style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)' }}>
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'var(--tx-xs)',
+                fontWeight: 'var(--wt-bold)',
+                background: 'var(--c-elevated)',
+                border: '1px solid var(--c-border-mid)',
+                padding: '2px 6px',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--c-gold)',
+                userSelect: 'none',
+              }}>
+                {userRating}
+              </span>
+              <Link to="/settings" className="btn-ghost" style={{ fontSize: 'var(--tx-sm)' }}>⚙</Link>
+              <button onClick={() => logout()} className="btn-ghost" style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text-2)' }}>
                 Sign out
               </button>
             </>
           ) : (
-            <Link to="/login" className="btn-primary" style={{ padding: '6px var(--space-4)' }}>Sign In</Link>
+            <Link to="/login" className="btn-play" style={{ padding: '4px var(--sp-4)', fontSize: 'var(--tx-xs)', display: 'inline-flex', alignItems: 'center' }}>Sign In</Link>
           )}
         </div>
 
@@ -125,9 +156,9 @@ function Header() {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           style={{
             display: 'none',
-            padding: 'var(--space-2)',
+            padding: 'var(--sp-2)',
             color: 'var(--c-text)',
-            fontSize: 'var(--text-md)',
+            fontSize: 'var(--tx-md)',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
@@ -150,40 +181,69 @@ function Header() {
             background: 'var(--c-surface)',
             borderBottom: '1px solid var(--c-border)',
             zIndex: 49,
-            padding: 'var(--space-2) 0',
+            padding: 'var(--sp-2) 0',
             display: 'none',
           }}
         >
+          <div style={{
+            padding: 'var(--sp-3) var(--sp-4)',
+            fontSize: 'var(--tx-xs)',
+            color: 'var(--c-text-2)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--sp-1)',
+            borderBottom: '1px solid var(--c-border)',
+            userSelect: 'none',
+          }}>
+            <span style={{ color: 'var(--c-win)', fontSize: '10px' }}>●</span>
+            <span>1,248 playing</span>
+          </div>
+
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               style={{
                 display: 'block',
-                padding: 'var(--space-3) var(--space-4)',
-                fontSize: 'var(--text-sm)',
-                fontWeight: 'var(--weight-medium)',
+                padding: 'var(--sp-3) var(--sp-4)',
+                fontSize: 'var(--tx-sm)',
+                fontWeight: 'var(--wt-medium)',
                 color: location.pathname === item.path ? 'var(--c-text)' : 'var(--c-text-2)',
                 textDecoration: 'none',
-                borderLeft: location.pathname === item.path ? '2px solid var(--c-accent)' : '2px solid transparent',
+                borderLeft: location.pathname === item.path ? '2px solid var(--c-gold)' : '2px solid transparent',
               }}
             >
               {item.label}
             </Link>
           ))}
-          <div style={{ borderTop: '1px solid var(--c-border)', padding: 'var(--space-3) var(--space-4)' }}>
+          <div style={{ borderTop: '1px solid var(--c-border)', padding: 'var(--sp-3) var(--sp-4)' }}>
             {user ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                <Link to={`/user/${user.username}`} style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text)', textDecoration: 'none' }}>
-                  {user.username}
-                </Link>
-                <Link to="/settings" style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)', textDecoration: 'none' }}>Settings</Link>
-                <button onClick={() => logout()} style={{ fontSize: 'var(--text-sm)', color: 'var(--c-text-2)', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+                  <Link to={`/user/${user.username}`} style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text)', textDecoration: 'none' }}>
+                    {user.username}
+                  </Link>
+                  <span style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 'var(--tx-2xs)',
+                    fontWeight: 'var(--wt-bold)',
+                    background: 'var(--c-elevated)',
+                    border: '1px solid var(--c-border-mid)',
+                    padding: '1px 4px',
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--c-gold)',
+                    userSelect: 'none',
+                  }}>
+                    {userRating}
+                  </span>
+                </div>
+                <Link to="/settings" style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text-2)', textDecoration: 'none' }}>Settings</Link>
+                <button onClick={() => logout()} style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text-2)', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
                   Sign out
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="btn-primary" style={{ width: '100%', textDecoration: 'none' }}>Sign In</Link>
+              <Link to="/login" className="btn-play" style={{ width: '100%', textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: 'var(--tx-xs)' }}>Sign In</Link>
             )}
           </div>
         </div>
@@ -218,10 +278,10 @@ export default function App() {
         justifyContent: 'center',
       }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-bold)', color: 'var(--c-text)' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--tx-md)', fontWeight: 'var(--wt-bold)', color: 'var(--c-text)' }}>
             KnightOS
           </p>
-          <p style={{ color: 'var(--c-text-2)', fontSize: 'var(--text-sm)', marginTop: 'var(--space-2)' }}>
+          <p style={{ color: 'var(--c-text-2)', fontSize: 'var(--tx-sm)', marginTop: 'var(--sp-2)' }}>
             Loading…
           </p>
         </div>
@@ -247,8 +307,8 @@ export default function App() {
           <Route path="*" element={
             <div style={{ minHeight: 'calc(100vh - 48px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: 'var(--text-lg)', color: 'var(--c-text-2)' }}>Page not found</p>
-                <Link to="/" style={{ color: 'var(--c-accent)', fontSize: 'var(--text-sm)', textDecoration: 'none', marginTop: 'var(--space-2)', display: 'inline-block' }}>
+                <p style={{ fontSize: 'var(--tx-lg)', color: 'var(--c-text-2)' }}>Page not found</p>
+                <Link to="/" style={{ color: 'var(--c-gold)', fontSize: 'var(--tx-sm)', textDecoration: 'none', marginTop: 'var(--sp-2)', display: 'inline-block' }}>
                   Go home
                 </Link>
               </div>

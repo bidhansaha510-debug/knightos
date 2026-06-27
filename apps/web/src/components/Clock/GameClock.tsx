@@ -11,6 +11,13 @@ function formatTime(ms: number): string {
   if (ms <= 0) return '0:00';
 
   const totalSeconds = Math.floor(ms / 1000);
+  if (totalSeconds >= 3600) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   const deciseconds = Math.floor((ms % 1000) / 100);
@@ -72,24 +79,26 @@ export default function GameClock({
   const isFlagged = displayTime <= 0;
 
   let color = 'var(--c-text)';
-  let weight = 'var(--weight-normal)';
+  let weight = 'var(--wt-normal)';
 
   if (isFlagged || isCritical) {
     color = 'var(--c-loss)';
-    weight = 'var(--weight-bold)';
+    weight = 'var(--wt-bold)';
   } else if (isWarning) {
-    color = 'var(--c-warning)';
-    weight = 'var(--weight-medium)';
+    color = 'var(--c-warn)';
+    weight = 'var(--wt-medium)';
   }
 
   // Inactive clock: dim the text
-  const opacity = (isPlayerTurn && isActive) ? 1 : 0.4;
+  const opacity = (isPlayerTurn && isActive) ? 1 : 0.35;
+  const isLessThan20s = totalSeconds < 20 && displayTime > 0;
+  const fontSize = isLessThan20s ? 'calc(var(--tx-xl) * 1.1)' : 'var(--tx-xl)';
 
   return (
     <span
       style={{
         fontFamily: 'var(--font-mono)',
-        fontSize: 'var(--text-xl)',
+        fontSize,
         fontWeight: weight,
         color,
         opacity,
