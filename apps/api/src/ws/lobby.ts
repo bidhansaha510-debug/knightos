@@ -14,21 +14,27 @@ interface LobbyConnection {
   username: string;
 }
 
-const lobbyConnections = new Map<string, LobbyConnection>();
+const lobbyConnections = new Map<string, Set<LobbyConnection>>();
 
 function broadcastSeeks(seeks: Seek[]) {
   const data = JSON.stringify({ type: 'seeks_update', seeks });
-  for (const conn of lobbyConnections.values()) {
-    if (conn.ws.readyState === 1) {
-      conn.ws.send(data);
+  for (const conns of lobbyConnections.values()) {
+    for (const conn of conns) {
+      if (conn.ws.readyState === 1) {
+        conn.ws.send(data);
+      }
     }
   }
 }
 
 function sendToUser(userId: string, message: object) {
-  const conn = lobbyConnections.get(userId);
-  if (conn && conn.ws.readyState === 1) {
-    conn.ws.send(JSON.stringify(message));
+  const conns = lobbyConnections.get(userId);
+  if (conns) {
+    for (const conn of conns) {
+      if (conn.ws.readyState === 1) {
+        conn.ws.send(JSON.stringify(message));
+      }
+    }
   }
 }
 
@@ -105,7 +111,13 @@ export async function lobbyWs(app: FastifyInstance) {
       userId: user.userId,
       username: user.username,
     };
-    lobbyConnections.set(user.userId, conn);
+    
+    let conns = lobbyConnections.get(user.userId);
+    if (!conns) {
+      conns = new Set();
+      lobbyConnections.set(user.userId, conns);
+    }
+    conns.add(conn);
 
     // Send current seeks
     const seeks = await getSeeks();
@@ -316,6 +328,40 @@ export async function lobbyWs(app: FastifyInstance) {
             await redis.del(`challenge:${challengeId}`);
             break;
           }
+
+          case 'direct_message': {
+            const { toUserId, content } = msg;
+            if (!toUserId || !content || content.trim().length === 0) break;
+
+            // Create message in DB
+            const dm = await prisma.directMessage.create({
+              data: {
+                senderId: user.userId,
+                receiverId: toUserId,
+                content: content.slice(0, 1000)
+              }
+            });
+
+            // Push to target user if online
+            sendToUser(toUserId, {
+              type: 'direct_message',
+              id: dm.id,
+              senderId: user.userId,
+              senderUsername: user.username,
+              content: dm.content,
+              createdAt: dm.createdAt
+            });
+
+            // Confirm to sender
+            sendToUser(user.userId, {
+              type: 'direct_message_sent',
+              id: dm.id,
+              receiverId: toUserId,
+              content: dm.content,
+              createdAt: dm.createdAt
+            });
+            break;
+          }
         }
       } catch (err) {
         console.error('Lobby WS message error:', err);
@@ -323,19 +369,27 @@ export async function lobbyWs(app: FastifyInstance) {
     });
 
     socket.on('close', async () => {
-      lobbyConnections.delete(user.userId);
-
-      // Remove user's seeks
-      const keys = await redis.keys('seek:*');
-      for (const key of keys) {
-        const seekUserId = await redis.hget(key, 'userId');
-        if (seekUserId === user.userId) {
-          await redis.del(key);
+      const conns = lobbyConnections.get(user.userId);
+      if (conns) {
+        conns.delete(conn);
+        if (conns.size === 0) {
+          lobbyConnections.delete(user.userId);
         }
       }
 
-      const updatedSeeks = await getSeeks();
-      broadcastSeeks(updatedSeeks);
+      // Only clean up seeks and broadcast if the user has no remaining active connections
+      if (!lobbyConnections.has(user.userId)) {
+        const keys = await redis.keys('seek:*');
+        for (const key of keys) {
+          const seekUserId = await redis.hget(key, 'userId');
+          if (seekUserId === user.userId) {
+            await redis.del(key);
+          }
+        }
+
+        const updatedSeeks = await getSeeks();
+        broadcastSeeks(updatedSeeks);
+      }
     });
   });
 }

@@ -22,7 +22,18 @@ export default function Analysis() {
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
   const [isEngineOn, setIsEngineOn] = useState(false);
 
-  const { isReady, isAnalyzing, evals, depth, analyze, stop } = useStockfish();
+  const { isReady, isAnalyzing, evals, bestMove, depth, analyze, stop } = useStockfish();
+
+  const arrows = useMemo(() => {
+    if (isEngineOn && bestMove && bestMove.length >= 4) {
+      return [{
+        from: bestMove.slice(0, 2),
+        to: bestMove.slice(2, 4),
+        color: 'rgba(212, 168, 67, 0.75)',
+      }];
+    }
+    return [];
+  }, [isEngineOn, bestMove]);
 
   // Fetch game from API if game ID is present in the URL
   useEffect(() => {
@@ -238,6 +249,7 @@ export default function Analysis() {
               interactive={true}
               onMove={handleMove}
               lastMove={lastMove}
+              arrows={arrows}
               size={600}
             />
           </div>

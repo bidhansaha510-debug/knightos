@@ -116,6 +116,7 @@ export default function Game() {
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
   const [ratingDiff, setRatingDiff] = useState<number | null>(null);
   const [isEngineOn, setIsEngineOn] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<'moves' | 'chat'>('moves');
 
   const { isReady, evals, analyze, stop } = useStockfish();
 
@@ -149,7 +150,7 @@ export default function Game() {
     }
   }, []);
 
-  const { gameState, makeMove, resign, offerDraw, acceptDraw, declineDraw, drawOffer, isConnected } = useChessGame({
+  const { gameState, makeMove, resign, offerDraw, acceptDraw, declineDraw, drawOffer, isConnected, chatMessages, sendChat } = useChessGame({
     gameId: id || null,
     onGameOver: handleGameOver,
   });
@@ -351,10 +352,114 @@ export default function Game() {
             </div>
           )}
 
-          {/* Move list */}
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <MoveList moves={gameState?.moves || []} />
+          {/* Tab Header */}
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--c-border)', background: 'var(--c-surface)' }}>
+            <button
+              onClick={() => setSidebarTab('moves')}
+              style={{
+                flex: 1,
+                height: 38,
+                background: sidebarTab === 'moves' ? 'var(--c-elevated)' : 'transparent',
+                border: 'none',
+                borderBottom: sidebarTab === 'moves' ? '2px solid var(--c-gold)' : 'none',
+                color: sidebarTab === 'moves' ? 'var(--c-text)' : 'var(--c-text-2)',
+                fontSize: 'var(--tx-xs)',
+                fontWeight: 'var(--wt-bold)',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ui)',
+              }}
+            >
+              Moves
+            </button>
+            <button
+              onClick={() => setSidebarTab('chat')}
+              style={{
+                flex: 1,
+                height: 38,
+                background: sidebarTab === 'chat' ? 'var(--c-elevated)' : 'transparent',
+                border: 'none',
+                borderBottom: sidebarTab === 'chat' ? '2px solid var(--c-gold)' : 'none',
+                color: sidebarTab === 'chat' ? 'var(--c-text)' : 'var(--c-text-2)',
+                fontSize: 'var(--tx-xs)',
+                fontWeight: 'var(--wt-bold)',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ui)',
+              }}
+            >
+              Chat
+            </button>
           </div>
+
+          {/* Moves / Chat Content */}
+          {sidebarTab === 'moves' ? (
+            <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <MoveList moves={gameState?.moves || []} />
+            </div>
+          ) : (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Messages area */}
+              <div style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: 'var(--sp-3) var(--sp-4)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--sp-2)',
+              }}>
+                {chatMessages.length === 0 ? (
+                  <p style={{ color: 'var(--c-text-3)', fontSize: 'var(--tx-xs)', fontStyle: 'italic', textAlign: 'center', marginTop: 'var(--sp-4)' }}>
+                    No messages. Start the conversation!
+                  </p>
+                ) : (
+                  chatMessages.map((m, i) => (
+                    <div key={i} style={{ fontSize: 'var(--tx-xs)', lineHeight: 1.45 }}>
+                      <span style={{ fontWeight: 'var(--wt-bold)', color: m.from === user?.username ? 'var(--c-gold)' : 'var(--c-text-2)', marginRight: 6 }}>
+                        {m.from}
+                      </span>
+                      <span style={{ color: 'var(--c-text)' }}>{m.message}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+              
+              {/* Input form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const input = form.elements.namedItem('chatMessage') as HTMLInputElement;
+                  const text = input.value.trim();
+                  if (text) {
+                    sendChat(text);
+                    input.value = '';
+                  }
+                }}
+                style={{
+                  padding: 'var(--sp-2) var(--sp-3)',
+                  borderTop: '1px solid var(--c-border)',
+                  background: 'var(--c-elevated)',
+                  display: 'flex',
+                  gap: 'var(--sp-2)',
+                }}
+              >
+                <input
+                  type="text"
+                  name="chatMessage"
+                  placeholder="Type a message…"
+                  autoComplete="off"
+                  className="input"
+                  style={{
+                    flex: 1,
+                    fontSize: 'var(--tx-xs)',
+                    padding: '6px var(--sp-2)',
+                  }}
+                />
+                <button type="submit" className="btn-play" style={{ padding: '6px var(--sp-3)', fontSize: 'var(--tx-2xs)' }}>
+                  Send
+                </button>
+              </form>
+            </div>
+          )}
 
           {/* Player (bottom of sidebar) */}
           <div style={{ borderTop: '1px solid var(--c-border)' }}>

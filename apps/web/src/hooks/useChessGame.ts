@@ -26,6 +26,7 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
 
   const chessRef = useRef(new Chess());
   const [drawOffer, setDrawOffer] = useState<'white' | 'black' | null>(null);
+  const [chatMessages, setChatMessages] = useState<Array<{ from: string; message: string }>>([]);
 
   const wsUrl = gameId
     ? getWsUrl(`/ws/game/${gameId}`)
@@ -97,9 +98,14 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
         case 'opponent_reconnected': {
           break;
         }
+        case 'chat': {
+          const chatMsg = msg as any;
+          setChatMessages((prev) => [...prev, { from: chatMsg.from, message: chatMsg.message }]);
+          break;
+        }
       }
     },
-    [setGameState, setLastMove, addMove, updateClocks, onGameOver]
+    [setGameState, setLastMove, addMove, updateClocks, onGameOver, setChatMessages]
   );
 
   const { send, isConnected } = useWebSocket({
@@ -150,6 +156,7 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
     return () => {
       reset();
       setDrawOffer(null);
+      setChatMessages([]);
     };
   }, [gameId]);
 
@@ -164,6 +171,7 @@ export function useChessGame({ gameId, onGameOver }: UseChessGameOptions) {
     declineDraw,
     drawOffer,
     sendChat,
+    chatMessages,
   };
 }
 

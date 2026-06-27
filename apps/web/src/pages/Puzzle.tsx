@@ -176,7 +176,7 @@ export default function Puzzle() {
     setStatus('wrong');
   }, [puzzle, chess, currentMoveIndex]);
 
-  const sideToMove = puzzle ? (puzzle.fen.split(' ')[1] === 'w' ? false : true) : false;
+  const playerColor = puzzle ? (puzzle.fen.split(' ')[1] === 'w' ? 'black' : 'white') : 'white';
 
   return (
     <div className="puzzle-layout" style={{ background: 'var(--c-base)' }}>
@@ -185,7 +185,7 @@ export default function Puzzle() {
         <div style={{ width: '100%', maxWidth: 560, aspectRatio: '1' }}>
           <ChessBoard
             fen={chess.fen()}
-            flipped={sideToMove}
+            flipped={playerColor === 'black'}
             interactive={status === 'playing'}
             onMove={handleMove}
             lastMove={lastMove}
@@ -272,7 +272,7 @@ export default function Puzzle() {
           {status === 'playing' && (
             <div>
               <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text)' }}>
-                Find the best move for {sideToMove ? 'Black' : 'White'}.
+                Find the best move for {playerColor === 'black' ? 'Black' : 'White'}.
               </p>
               {attempts > 0 && (
                 <p style={{ fontSize: 'var(--tx-xs)', color: 'var(--c-warn)', marginTop: 'var(--sp-2)' }}>

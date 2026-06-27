@@ -10,12 +10,15 @@ import Analysis from './pages/Analysis';
 import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import Settings from './pages/Settings';
+import Players from './pages/Players';
+import SocialChat from './components/SocialChat';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Home' },
   { path: '/play', label: 'Play' },
   { path: '/puzzle', label: 'Puzzles' },
   { path: '/analysis', label: 'Analysis' },
+  { path: '/players', label: 'Players' },
   { path: '/leaderboard', label: 'Leaderboard' },
 ];
 
@@ -303,6 +306,7 @@ export default function App() {
           <Route path="/user/:username" element={<Profile />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/players" element={<Players />} />
           <Route path="/games/:id" element={<Analysis />} />
           <Route path="*" element={
             <div style={{ minHeight: 'calc(100vh - 48px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -316,6 +320,7 @@ export default function App() {
           } />
         </Routes>
       </main>
+      <SocialChat />
     </div>
   );
 }

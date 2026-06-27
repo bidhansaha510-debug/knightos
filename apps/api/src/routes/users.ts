@@ -142,4 +142,20 @@ export async function userRoutes(app: FastifyInstance) {
 
     return reply.send(following.map((f) => f.followed));
   });
+
+  // Get all registered users
+  app.get('/users', { preHandler: [authMiddleware] }, async (request, reply) => {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        createdAt: true,
+        ratings: {
+          select: { timeControl: true, rating: true }
+        }
+      },
+      orderBy: { username: 'asc' }
+    });
+    return reply.send(users);
+  });
 }

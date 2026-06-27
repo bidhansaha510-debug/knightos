@@ -7,6 +7,7 @@ import { authRoutes } from './routes/auth.js';
 import { gameRoutes } from './routes/games.js';
 import { puzzleRoutes } from './routes/puzzles.js';
 import { userRoutes } from './routes/users.js';
+import { messageRoutes } from './routes/messages.js';
 import { leaderboardRoutes } from './routes/leaderboard.js';
 import { lobbyWs } from './ws/lobby.js';
 import { gameWs } from './ws/game.js';
@@ -36,6 +37,7 @@ await app.register(authRoutes);
 await app.register(gameRoutes);
 await app.register(puzzleRoutes);
 await app.register(userRoutes);
+await app.register(messageRoutes);
 await app.register(leaderboardRoutes);
 
 // WebSocket Routes

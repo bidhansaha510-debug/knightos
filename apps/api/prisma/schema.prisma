@@ -21,6 +21,8 @@ model User {
   puzzleAttempts PuzzleAttempt[]
   followers      Follow[]        @relation("Followed")
   following      Follow[]        @relation("Follower")
+  sentMessages     DirectMessage[] @relation("SentMessages")
+  receivedMessages DirectMessage[] @relation("ReceivedMessages")
 }
 
 model Rating {
@@ -91,4 +93,17 @@ model Follow {
   followed User @relation("Followed", fields: [followedId], references: [id])
 
   @@id([followerId, followedId])
+}
+
+model DirectMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([senderId, receiverId])
 }

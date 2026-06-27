@@ -39,7 +39,7 @@ export default function EvalBar({ eval: evalScore, mate }: EvalBarProps) {
     <div
       style={{
         width: 10,
-        height: '100%',
+        height: 'auto',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
