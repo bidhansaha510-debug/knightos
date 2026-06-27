@@ -173,14 +173,12 @@ export default function Game() {
     };
   }, [isEngineOn, isReady, gameState?.fen, analyze, stop]);
 
-  const currentEval = evals.length > 0 ? evals[0] : null;
-  const evalCp = currentEval?.score.type === 'cp' ? currentEval.score.value : null;
-  const evalMate = currentEval?.score.type === 'mate' ? currentEval.score.value : null;
-
   let checkSquare: string | null = null;
+  let turnColor: 'w' | 'b' = 'w';
   if (gameState?.fen) {
     try {
       const tempChess = new Chess(gameState.fen);
+      turnColor = tempChess.turn();
       if (tempChess.isCheck()) {
         const turn = tempChess.turn();
         const board = tempChess.board();
@@ -195,6 +193,13 @@ export default function Game() {
       }
     } catch {}
   }
+
+  const currentEval = evals.length > 0 ? evals[0] : null;
+  const rawEvalCp = currentEval?.score.type === 'cp' ? currentEval.score.value : null;
+  const rawEvalMate = currentEval?.score.type === 'mate' ? currentEval.score.value : null;
+
+  const evalCp = rawEvalCp !== null ? (turnColor === 'b' ? -rawEvalCp : rawEvalCp) : null;
+  const evalMate = rawEvalMate !== null ? (turnColor === 'b' ? -rawEvalMate : rawEvalMate) : null;
 
   const openingName = useMemo(() => {
     return getOpeningName(gameState?.moves || []);
@@ -381,7 +386,7 @@ export default function Game() {
               <p style={{ fontSize: 'var(--tx-sm)', color: 'var(--c-text-2)', marginBottom: 'var(--sp-3)' }}>{gameOverMessage}</p>
               <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
                 <button onClick={() => { setGameOverMessage(null); setRatingDiff(null); navigate('/play'); }} className="btn-play" style={{ flex: 1, padding: '8px var(--sp-3)', fontSize: 'var(--tx-xs)' }}>New Game</button>
-                <button onClick={() => navigate(`/games/${id}`)} className="btn-secondary" style={{ flex: 1 }}>Analyze</button>
+                <button onClick={() => navigate(`/games/${id}`, { state: { moves: gameState?.moves } })} className="btn-secondary" style={{ flex: 1 }}>Analyze</button>
               </div>
             </div>
           )}

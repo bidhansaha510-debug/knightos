@@ -1,13 +1,18 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { Chess } from 'chess.js';
 import ChessBoard from '../components/Board/ChessBoard';
 import MoveList from '../components/MoveList/MoveList';
 import EvalBar from '../components/EvalBar/EvalBar';
 import { useStockfish } from '../hooks/useStockfish';
 import { getOpeningName } from '../utils/openings';
+import { API_BASE } from '../config';
 import type { GameMove } from '@knightos/shared';
 
 export default function Analysis() {
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+
   const [inputFen, setInputFen] = useState('');
   const [inputPgn, setInputPgn] = useState('');
   const [chess, setChess] = useState(new Chess());
@@ -19,9 +24,77 @@ export default function Analysis() {
 
   const { isReady, isAnalyzing, evals, depth, analyze, stop } = useStockfish();
 
+  // Fetch game from API if game ID is present in the URL
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    const fetchGame = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/games/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch game');
+        const data = await response.json();
+        if (!active) return;
+
+        if (data.moves && data.moves.length > 0) {
+          setMoves(data.moves);
+          setCurrentMoveIndex(data.moves.length - 1);
+          const lastMoveFen = data.moves[data.moves.length - 1].fen;
+          setChess(new Chess(lastMoveFen));
+          const lastUci = data.moves[data.moves.length - 1].uci;
+          setLastMove({ from: lastUci.slice(0, 2), to: lastUci.slice(2, 4) });
+          if (isEngineOn && isReady) {
+            analyze(lastMoveFen);
+          }
+        } else if (data.fen) {
+          const newChess = new Chess(data.fen);
+          setChess(newChess);
+          setMoves([]);
+          setCurrentMoveIndex(-1);
+          setLastMove(null);
+          if (isEngineOn && isReady) analyze(data.fen);
+        }
+      } catch (err) {
+        console.error('Error fetching game for analysis:', err);
+      }
+    };
+    fetchGame();
+    return () => {
+      active = false;
+    };
+  }, [id, isReady, isEngineOn, analyze]);
+
+  // Load from location.state fallback
+  useEffect(() => {
+    const state = location.state as { moves?: GameMove[], fen?: string } | null;
+    if (!id && state) {
+      if (state.moves && state.moves.length > 0) {
+        setMoves(state.moves);
+        setCurrentMoveIndex(state.moves.length - 1);
+        const lastMoveFen = state.moves[state.moves.length - 1].fen;
+        setChess(new Chess(lastMoveFen));
+        const lastUci = state.moves[state.moves.length - 1].uci;
+        setLastMove({ from: lastUci.slice(0, 2), to: lastUci.slice(2, 4) });
+        if (isEngineOn && isReady) analyze(lastMoveFen);
+      } else if (state.fen) {
+        try {
+          const newChess = new Chess(state.fen);
+          setChess(newChess);
+          setMoves([]);
+          setCurrentMoveIndex(-1);
+          setLastMove(null);
+          if (isEngineOn && isReady) analyze(state.fen);
+        } catch {}
+      }
+    }
+  }, [location.state, id, isReady, isEngineOn, analyze]);
+
+  const turnColor = chess.turn();
   const currentEval = evals.length > 0 ? evals[0] : null;
-  const evalCp = currentEval?.score.type === 'cp' ? currentEval.score.value : null;
-  const evalMate = currentEval?.score.type === 'mate' ? currentEval.score.value : null;
+  const rawEvalCp = currentEval?.score.type === 'cp' ? currentEval.score.value : null;
+  const rawEvalMate = currentEval?.score.type === 'mate' ? currentEval.score.value : null;
+
+  const evalCp = rawEvalCp !== null ? (turnColor === 'b' ? -rawEvalCp : rawEvalCp) : null;
+  const evalMate = rawEvalMate !== null ? (turnColor === 'b' ? -rawEvalMate : rawEvalMate) : null;
 
   const toggleEngine = useCallback(() => {
     if (isEngineOn) {
@@ -236,34 +309,45 @@ export default function Analysis() {
             padding: 'var(--sp-2) var(--sp-4)',
             borderBottom: '1px solid var(--c-border)',
           }}>
-            {evals.map((ev) => (
-              <div key={ev.multipv} style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 'var(--sp-2)',
-                fontSize: 'var(--tx-xs)',
-                fontFamily: 'var(--font-mono)',
-                marginBottom: 2,
-              }}>
-                <span style={{
-                  minWidth: 40,
-                  textAlign: 'right',
-                  fontWeight: 'var(--wt-bold)',
-                  color: ev.score.type === 'mate'
-                    ? (ev.score.value > 0 ? 'var(--c-win)' : 'var(--c-loss)')
-                    : ev.score.value > 50 ? 'var(--c-win)'
-                    : ev.score.value < -50 ? 'var(--c-loss)'
-                    : 'var(--c-text-2)',
+            {evals.map((ev) => {
+              const displayCp = ev.score.type === 'cp' ? (turnColor === 'b' ? -ev.score.value : ev.score.value) : null;
+              const displayMate = ev.score.type === 'mate' ? (turnColor === 'b' ? -ev.score.value : ev.score.value) : null;
+              const isMate = ev.score.type === 'mate';
+              const scoreVal = isMate ? displayMate! : displayCp!;
+
+              const scoreColor = isMate
+                ? (scoreVal > 0 ? 'var(--c-win)' : 'var(--c-loss)')
+                : scoreVal > 50 ? 'var(--c-win)'
+                : scoreVal < -50 ? 'var(--c-loss)'
+                : 'var(--c-text-2)';
+
+              const scoreText = isMate
+                ? (scoreVal > 0 ? `M${scoreVal}` : `-M${Math.abs(scoreVal)}`)
+                : (scoreVal >= 0 ? '+' : '') + (scoreVal / 100).toFixed(1);
+
+              return (
+                <div key={ev.multipv} style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: 'var(--sp-2)',
+                  fontSize: 'var(--tx-xs)',
+                  fontFamily: 'var(--font-mono)',
+                  marginBottom: 2,
                 }}>
-                  {ev.score.type === 'mate'
-                    ? `M${Math.abs(ev.score.value)}`
-                    : (ev.score.value >= 0 ? '+' : '') + (ev.score.value / 100).toFixed(1)}
-                </span>
-                <span style={{ color: 'var(--c-text-2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {ev.pv.slice(0, 8).join(' ')}
-                </span>
-              </div>
-            ))}
+                  <span style={{
+                    minWidth: 40,
+                    textAlign: 'right',
+                    fontWeight: 'var(--wt-bold)',
+                    color: scoreColor,
+                  }}>
+                    {scoreText}
+                  </span>
+                  <span style={{ color: 'var(--c-text-2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ev.pv.slice(0, 8).join(' ')}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
 

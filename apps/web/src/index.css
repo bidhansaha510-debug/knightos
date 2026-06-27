@@ -375,3 +375,41 @@ body {
     transition-duration: 0ms !important;
   }
 }
+
+/* ============================================================
+   Board Themes
+   ============================================================ */
+.board-theme-classic {
+  --c-sq-light:   #f0d9b5;
+  --c-sq-dark:    #b58863;
+  --c-sq-last-l:  #cdd46a;
+  --c-sq-last-d:  #3d6e42;
+}
+
+.board-theme-blue {
+  --c-sq-light:   #dee3e6;
+  --c-sq-dark:    #8ca2ad;
+  --c-sq-last-l:  #b5c9d6;
+  --c-sq-last-d:  #5e7d91;
+}
+
+.board-theme-green {
+  --c-sq-light:   #eaedcc;
+  --c-sq-dark:    #4d7c5f;
+  --c-sq-last-l:  #cdd46a;
+  --c-sq-last-d:  #3d6e42;
+}
+
+.board-theme-purple {
+  --c-sq-light:   #9f90b0;
+  --c-sq-dark:    #7d4a8d;
+  --c-sq-last-l:  #c7b6d9;
+  --c-sq-last-d:  #5c2e6d;
+}
+
+.board-theme-pink {
+  --c-sq-light:   #f0d0e0;
+  --c-sq-dark:    #c07090;
+  --c-sq-last-l:  #f3b2d1;
+  --c-sq-last-d:  #9e4f6f;
+}

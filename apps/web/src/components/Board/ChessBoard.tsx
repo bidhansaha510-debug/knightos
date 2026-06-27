@@ -90,6 +90,7 @@ export default function ChessBoard({
 
   const settingsCoords = useSettingsStore((s) => s.showCoordinates);
   const boardTheme = useSettingsStore((s) => s.boardTheme);
+  const pieceSet = useSettingsStore((s) => s.pieceSet);
   const showCoordinates = showCoordsProp ?? settingsCoords;
 
   const selectedSquare = externalSelectedSquare !== undefined ? externalSelectedSquare : internalSelectedSquare;
@@ -107,8 +108,8 @@ export default function ChessBoard({
   // Board dimensions
   const boardSize = size || 560;
   const squareSize = boardSize / 8;
-  const coordSize = showCoordinates ? 16 : 0;
-  const totalSize = boardSize + coordSize;
+  const coordSize = 0;
+  const totalSize = boardSize;
 
   const getSquareColor = useCallback(
     (col: number, row: number): string => {
@@ -277,44 +278,50 @@ export default function ChessBoard({
         onPointerUp={handlePointerUp}
         style={{ display: 'block' }}
       >
-        {/* Coordinate labels */}
+        {/* Coordinate labels inside the squares */}
         {showCoordinates && (
-          <>
-            {/* File labels (bottom) */}
-            {Array.from({ length: 8 }, (_, i) => {
-              const file = flipped ? FILES[7 - i] : FILES[i];
+          <g pointerEvents="none" style={{ userSelect: 'none' }}>
+            {/* File labels (bottom row: row = 7) */}
+            {Array.from({ length: 8 }, (_, col) => {
+              const file = flipped ? FILES[7 - col] : FILES[col];
+              const isLight = (col + 7) % 2 === 0;
+              const textColor = isLight ? 'var(--c-sq-dark)' : 'var(--c-sq-light)';
               return (
                 <text
-                  key={`file-${i}`}
-                  x={coordSize + i * squareSize + squareSize / 2}
-                  y={totalSize - 2}
-                  textAnchor="middle"
-                  fill="var(--c-text-2)"
-                  fontSize="11"
+                  key={`file-label-${col}`}
+                  x={(col + 1) * squareSize - 3}
+                  y={8 * squareSize - 3}
+                  textAnchor="end"
+                  fill={textColor}
+                  fontSize="10"
+                  fontWeight="var(--wt-bold)"
                   fontFamily="Inter, sans-serif"
                 >
                   {file}
                 </text>
               );
             })}
-            {/* Rank labels (left) */}
-            {Array.from({ length: 8 }, (_, i) => {
-              const rank = flipped ? RANKS[7 - i] : RANKS[i];
+            {/* Rank labels (rightmost column: col = 7) */}
+            {Array.from({ length: 8 }, (_, row) => {
+              const rank = flipped ? RANKS[7 - row] : RANKS[row];
+              const isLight = (7 + row) % 2 === 0;
+              const textColor = isLight ? 'var(--c-sq-dark)' : 'var(--c-sq-light)';
               return (
                 <text
-                  key={`rank-${i}`}
-                  x={6}
-                  y={coordSize + i * squareSize + squareSize / 2 + 4}
-                  textAnchor="middle"
-                  fill="var(--c-text-2)"
-                  fontSize="11"
+                  key={`rank-label-${row}`}
+                  x={8 * squareSize - 3}
+                  y={row * squareSize + 10}
+                  textAnchor="end"
+                  fill={textColor}
+                  fontSize="10"
+                  fontWeight="var(--wt-bold)"
                   fontFamily="Inter, sans-serif"
                 >
                   {rank}
                 </text>
               );
             })}
-          </>
+          </g>
         )}
 
         {/* Board squares */}
@@ -432,8 +439,6 @@ export default function ChessBoard({
         {Array.from(pieces.entries()).map(([square, piece]) => {
           const pieceKey = fenToPieceKey(piece);
           if (!pieceKey) return null;
-          const pathData = PIECE_PATHS[pieceKey];
-          if (!pathData) return null;
 
           // Skip piece being dragged from its original position
           if (dragging && square === dragging.from) return null;
@@ -441,6 +446,27 @@ export default function ChessBoard({
           const { col, row } = squareToCoords(square, flipped);
           const x = coordSize + col * squareSize;
           const y = coordSize + row * squareSize;
+
+          if (pieceSet && pieceSet !== 'standard') {
+            return (
+              <g
+                key={`piece-${square}`}
+                transform={`translate(${x}, ${y})`}
+                onPointerDown={(e) => handlePointerDown(e, square)}
+                className="cursor-pointer"
+                style={{ touchAction: 'none' }}
+              >
+                <image
+                  href={`https://raw.githubusercontent.com/lichess-org/lila/master/public/piece/${pieceSet}/${pieceKey}.svg`}
+                  width={squareSize}
+                  height={squareSize}
+                />
+              </g>
+            );
+          }
+
+          const pathData = PIECE_PATHS[pieceKey];
+          if (!pathData) return null;
 
           return (
             <g
@@ -471,6 +497,23 @@ export default function ChessBoard({
         {dragging && (() => {
           const pieceKey = fenToPieceKey(dragging.piece);
           if (!pieceKey) return null;
+
+          if (pieceSet && pieceSet !== 'standard') {
+            return (
+              <g
+                transform={`translate(${dragging.x - squareSize / 2}, ${dragging.y - squareSize / 2})`}
+                pointerEvents="none"
+                style={{ filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))' }}
+              >
+                <image
+                  href={`https://raw.githubusercontent.com/lichess-org/lila/master/public/piece/${pieceSet}/${pieceKey}.svg`}
+                  width={squareSize * 1.1}
+                  height={squareSize * 1.1}
+                />
+              </g>
+            );
+          }
+
           const pathData = PIECE_PATHS[pieceKey];
           if (!pathData) return null;
 
@@ -556,7 +599,6 @@ export default function ChessBoard({
               {promotionPieces.map((piece, i) => {
                 const pieceKey = fenToPieceKey(piece);
                 if (!pieceKey) return null;
-                const pathData = PIECE_PATHS[pieceKey];
                 const py = startY + i * squareSize;
 
                 return (
@@ -572,21 +614,31 @@ export default function ChessBoard({
                       stroke="var(--c-gold)"
                       strokeWidth={1.5}
                     />
-                    <g transform={`translate(${x}, ${py})`}>
-                      <g transform={`scale(${squareSize / 45})`}>
-                        {pathData.paths.map((p, j) => (
-                          <path
-                            key={j}
-                            d={p.d}
-                            fill={p.fill || 'none'}
-                            stroke={p.stroke || 'none'}
-                            strokeWidth={p.strokeWidth || 0}
-                            strokeLinecap={(p.strokeLinecap as any) || undefined}
-                            strokeLinejoin={(p.strokeLinejoin as any) || undefined}
-                          />
-                        ))}
+                    {pieceSet && pieceSet !== 'standard' ? (
+                      <g transform={`translate(${x}, ${py})`}>
+                        <image
+                          href={`https://raw.githubusercontent.com/lichess-org/lila/master/public/piece/${pieceSet}/${pieceKey}.svg`}
+                          width={squareSize}
+                          height={squareSize}
+                        />
                       </g>
-                    </g>
+                    ) : (
+                      <g transform={`translate(${x}, ${py})`}>
+                        <g transform={`scale(${squareSize / 45})`}>
+                          {PIECE_PATHS[pieceKey]?.paths.map((p, j) => (
+                            <path
+                              key={j}
+                              d={p.d}
+                              fill={p.fill || 'none'}
+                              stroke={p.stroke || 'none'}
+                              strokeWidth={p.strokeWidth || 0}
+                              strokeLinecap={(p.strokeLinecap as any) || undefined}
+                              strokeLinejoin={(p.strokeLinejoin as any) || undefined}
+                            />
+                          ))}
+                        </g>
+                      </g>
+                    )}
                   </g>
                 );
               })}

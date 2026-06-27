@@ -29,11 +29,9 @@ export function useStockfish(): UseStockfishReturn {
   useEffect(() => {
     // Try to load Stockfish WASM worker
     try {
-      // The stockfish npm package provides the engine files
-      // We'll check for availability and use a stub if not available
-      const worker = new Worker(
-        new URL('../workers/stockfish.worker.js', import.meta.url),
-      );
+      const blobCode = `importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js');`;
+      const blob = new Blob([blobCode], { type: 'application/javascript' });
+      const worker = new Worker(URL.createObjectURL(blob));
 
       worker.onmessage = (e) => {
         const line = typeof e.data === 'string' ? e.data : String(e.data);
