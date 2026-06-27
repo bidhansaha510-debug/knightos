@@ -21,6 +21,16 @@ function generateTokens(userId: string, username: string) {
   return { accessToken, refreshToken };
 }
 
+function cookieOptions() {
+  return {
+    httpOnly: true,
+    secure: false,       // local dev over HTTP — never set true on localhost
+    sameSite: 'lax' as const,
+    path: '/',
+    maxAge: 30 * 24 * 60 * 60, // 30 days in seconds
+  };
+}
+
 export async function authRoutes(app: FastifyInstance) {
   // Register
   app.post('/auth/register', async (request, reply) => {
@@ -75,13 +85,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const { accessToken, refreshToken } = generateTokens(user.id, user.username);
 
-    reply.setCookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
-    });
+    reply.setCookie('refreshToken', refreshToken, cookieOptions());
 
     return reply.status(201).send({
       user,
@@ -116,13 +120,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const { accessToken, refreshToken } = generateTokens(user.id, user.username);
 
-    reply.setCookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: 30 * 24 * 60 * 60,
-    });
+    reply.setCookie('refreshToken', refreshToken, cookieOptions());
 
     const { passwordHash: _, ...userWithoutPassword } = user;
     return reply.send({ user: userWithoutPassword, accessToken });
@@ -152,13 +150,7 @@ export async function authRoutes(app: FastifyInstance) {
 
       const { accessToken, refreshToken } = generateTokens(user.id, user.username);
 
-      reply.setCookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60,
-      });
+      reply.setCookie('refreshToken', refreshToken, cookieOptions());
 
       return reply.send({ accessToken });
     } catch {

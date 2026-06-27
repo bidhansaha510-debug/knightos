@@ -16,6 +16,18 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy) => {
+          // Ensure Set-Cookie headers from the backend are properly forwarded
+          proxy.on('proxyRes', (proxyRes) => {
+            const setCookie = proxyRes.headers['set-cookie'];
+            if (setCookie) {
+              // Strip any Domain attribute so the browser defaults to localhost:5173
+              proxyRes.headers['set-cookie'] = setCookie.map((cookie: string) =>
+                cookie.replace(/;\s*Domain=[^;]*/gi, '')
+              );
+            }
+          });
+        },
       },
       '/ws': {
         target: 'ws://localhost:3001',
