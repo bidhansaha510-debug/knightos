@@ -14,7 +14,7 @@ const PIECE_SETS: { key: PieceSet; label: string }[] = [
   { key: 'standard', label: 'Standard' },
   { key: 'merida', label: 'Merida' },
   { key: 'alpha', label: 'Alpha' },
-  { key: 'neo', label: 'Neo' },
+  { key: 'staunty', label: 'Staunty' },
 ];
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {

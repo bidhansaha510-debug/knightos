@@ -458,7 +458,7 @@ export default function ChessBoard({
                 style={{ touchAction: 'none' }}
               >
                 <image
-                  href={`https://raw.githubusercontent.com/lichess-org/lila/master/public/piece/${pieceSet}/${pieceKey}.svg`}
+                  href={`/pieces/${pieceSet}/${pieceKey}.svg`}
                   width={squareSize}
                   height={squareSize}
                 />

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 export type BoardTheme = 'classic' | 'blue' | 'green' | 'purple' | 'pink';
-export type PieceSet = 'standard' | 'merida' | 'alpha' | 'neo';
+export type PieceSet = 'standard' | 'merida' | 'alpha' | 'staunty';
 
 export const getSettingsKey = (userId?: string | null) => `knightos-settings-${userId || 'guest'}`;
 
